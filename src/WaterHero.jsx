@@ -83,15 +83,16 @@ const WaterShape = () => {
   const pointerSpeed = useRef(0);
 
   const stateValues = useRef({
-    intensity: 0.22,
-    speed: 1.0,
+    intensity: 0.12,  // Reduced starting deformation for a smoother look
+    speed: 0.6,       // Slower, more majestic waves
     scale: 1.0,
     ior: 1.333,
-    chromaticAberration: 0.08,
+    chromaticAberration: 0.04,
   });
 
   const baseRadius = 2.1;
-  const geometry = useMemo(() => new THREE.IcosahedronGeometry(baseRadius, 32), []);
+  // Using high-segment SphereGeometry + smooth shading for flawless organic water shape
+  const geometry = useMemo(() => new THREE.SphereGeometry(baseRadius, 64, 64), []);
   const originalPositions = useMemo(() => geometry.attributes.position.clone(), [geometry]);
 
   useFrame((state, delta) => {
@@ -100,60 +101,60 @@ const WaterShape = () => {
     // Calculate cursor movement speed/velocity
     const dx = state.pointer.x - lastPointer.current.x;
     const dy = state.pointer.y - lastPointer.current.y;
-    pointerSpeed.current = Math.min(Math.sqrt(dx * dx + dy * dy) / Math.max(delta, 0.001), 25);
+    // Lower multiplier (0.015) to make it much less sensitive to sudden mouse jerks
+    pointerSpeed.current = Math.min(Math.sqrt(dx * dx + dy * dy) / Math.max(delta, 0.001), 12);
     lastPointer.current = { x: state.pointer.x, y: state.pointer.y };
 
-    // Constant premium organic rotation
-    meshRef.current.rotation.y += delta * 0.12;
-    meshRef.current.rotation.z += delta * 0.06;
+    // Gentle premium organic rotation
+    meshRef.current.rotation.y += delta * 0.07;
+    meshRef.current.rotation.z += delta * 0.03;
 
-    // Dynamic states based on cursor movement and hover
-    // Speed increases with cursor movement velocity
-    const targetIntensity = hovered ? 0.75 : 0.25 + (pointerSpeed.current * 0.035);
-    const targetSpeed = hovered ? 2.0 : 1.0 + (pointerSpeed.current * 0.08);
-    const targetScale = hovered ? 1.08 : 1.0 + (pointerSpeed.current * 0.012);
+    // Dynamic states based on cursor movement and hover (softened multipliers)
+    const targetIntensity = hovered ? 0.35 : 0.12 + (pointerSpeed.current * 0.015);
+    const targetSpeed = hovered ? 1.2 : 0.6 + (pointerSpeed.current * 0.03);
+    const targetScale = hovered ? 1.05 : 1.0 + (pointerSpeed.current * 0.004);
     
-    // Shift IOR (Index of Refraction) slightly when cursor moves fast to simulate water optics bending
-    const targetIor = 1.333 + (pointerSpeed.current * 0.005);
-    const targetDispersion = 0.08 + (pointerSpeed.current * 0.015);
+    // Water index of refraction shifts
+    const targetIor = 1.333 + (pointerSpeed.current * 0.002);
+    const targetDispersion = 0.04 + (pointerSpeed.current * 0.005);
 
-    // Smooth dampening
-    easing.damp(stateValues.current, 'intensity', targetIntensity, 0.4, delta);
-    easing.damp(stateValues.current, 'speed', targetSpeed, 0.45, delta);
-    easing.damp(stateValues.current, 'scale', targetScale, 0.3, delta);
-    easing.damp(stateValues.current, 'ior', targetIor, 0.35, delta);
-    easing.damp(stateValues.current, 'chromaticAberration', targetDispersion, 0.4, delta);
+    // High smooth dampening values (0.75 - 0.9s response times) to make it float like elegant heavy liquid
+    easing.damp(stateValues.current, 'intensity', targetIntensity, 0.8, delta);
+    easing.damp(stateValues.current, 'speed', targetSpeed, 0.9, delta);
+    easing.damp(stateValues.current, 'scale', targetScale, 0.6, delta);
+    easing.damp(stateValues.current, 'ior', targetIor, 0.6, delta);
+    easing.damp(stateValues.current, 'chromaticAberration', targetDispersion, 0.7, delta);
 
     // Apply scale dynamically
     const s = stateValues.current.scale;
     meshRef.current.scale.set(s, s, s);
 
-    // Position follow mouse: maps to the right column of the viewport on desktop
+    // Subtle position follow mouse: higher followFactor (28) for subtle movement
     const isMobile = state.viewport.width < 7.5;
-    const centerOffset = isMobile ? 0 : state.viewport.width * 0.22; // Offset to the right
+    const centerOffset = isMobile ? 0 : state.viewport.width * 0.22;
     const verticalOffset = isMobile ? -state.viewport.height * 0.05 : 0;
     
-    const targetX = centerOffset + (state.pointer.x * state.viewport.width) / 12;
-    const targetY = verticalOffset + (state.pointer.y * state.viewport.height) / 12;
-    easing.damp3(meshRef.current.position, [targetX, targetY, 0], 0.55, delta);
+    const targetX = centerOffset + (state.pointer.x * state.viewport.width) / 28;
+    const targetY = verticalOffset + (state.pointer.y * state.viewport.height) / 28;
+    // Increased dampening time to 1.1s for extreme cinematic smoothness
+    easing.damp3(meshRef.current.position, [targetX, targetY, 0], 1.1, delta);
 
     // Dynamic organic vertex displacement (multi-octave Perlin noise)
     const time = state.clock.elapsedTime * stateValues.current.speed;
     const positions = geometry.attributes.position;
     const vertex = new THREE.Vector3();
-    const noiseScale = 0.75;
+    const noiseScale = 0.55; // Lower frequency noise for larger, more realistic liquid waves
 
     for (let i = 0; i < positions.count; i++) {
       vertex.fromBufferAttribute(originalPositions, i);
       
       const nx = vertex.x * noiseScale + time;
-      const ny = vertex.y * noiseScale - time * 0.85;
-      const nz = vertex.z * noiseScale + time * 1.05;
+      const ny = vertex.y * noiseScale - time * 0.55;
+      const nz = vertex.z * noiseScale + time * 0.75;
 
-      // Beautiful multi-octave liquid ripples
+      // Premium heavy liquid ripples
       let noiseVal = perlin.noise(nx, ny, nz) * 1.0;
-      noiseVal += perlin.noise(nx * 2.2, ny * 2.2, nz * 2.2) * 0.35;
-      noiseVal += perlin.noise(nx * 4.0, ny * 4.0, nz * 4.0) * 0.12;
+      noiseVal += perlin.noise(nx * 2.0, ny * 2.0, nz * 2.0) * 0.25;
       
       // Calculate dynamic ripple displacement
       const displacement = noiseVal * stateValues.current.intensity;
@@ -176,19 +177,19 @@ const WaterShape = () => {
       <MeshTransmissionMaterial
         ref={materialRef}
         transmission={1.0}
-        thickness={2.0}
-        roughness={0.015}
+        thickness={2.4}            // Increased thickness for deep refraction
+        roughness={0.005}          // High glassiness polish
         ior={stateValues.current.ior}
         chromaticAberration={stateValues.current.chromaticAberration}
-        anisotropy={0.65}
-        color="#cceeff" // Ultra clean crystal liquid
-        distortion={0.3}
-        distortionScale={0.45}
-        temporalDistortion={0.18}
+        anisotropy={0.8}
+        color="#e6f7ff"            // Clear pure mineral water shade
+        distortion={0.12}          // Reduced distortion for highly crystal transparent quality
+        distortionScale={0.3}
+        temporalDistortion={0.08}
         clearcoat={1.0}
-        clearcoatRoughness={0.01}
+        clearcoatRoughness={0.005}
         attenuationColor="#ffffff"
-        attenuationDistance={2.5}
+        attenuationDistance={3.0}
         backside={true}
       />
     </mesh>
@@ -203,13 +204,13 @@ export default function WaterHeroComponent() {
         dpr={[1, 2]} 
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={0.25} color="#dbeafe" />
+        <ambientLight intensity={0.35} color="#e0f2fe" />
         
-        {/* Cinematic studio lights for perfect glassy specular highlights */}
-        <directionalLight position={[8, 8, 4]} intensity={4.0} color="#ffffff" />
-        <directionalLight position={[-8, -5, -4]} intensity={2.5} color="#1d4ed8" />
-        <directionalLight position={[0, -8, 2]} intensity={2.0} color="#00f2fe" />
-        <pointLight position={[6, -6, 6]} intensity={2.5} color="#e0f2fe" />
+        {/* Soft, studio direct lights for glassy highlights without hard shadows */}
+        <directionalLight position={[8, 8, 4]} intensity={4.5} color="#ffffff" />
+        <directionalLight position={[-8, -5, -4]} intensity={2.8} color="#1e40af" />
+        <directionalLight position={[0, -8, 2]} intensity={2.5} color="#00f2fe" />
+        <pointLight position={[6, -6, 6]} intensity={3.0} color="#f0f9ff" />
 
         {/* Midnight deep blue studio backdrop environment reflection */}
         <Environment resolution={512}>
@@ -240,12 +241,13 @@ export default function WaterHeroComponent() {
           />
         </Environment>
 
-        <Float speed={1.5} rotationIntensity={0.25} floatIntensity={0.6}>
+        <Float speed={1.2} rotationIntensity={0.2} floatIntensity={0.4}>
           <WaterShape />
         </Float>
       </Canvas>
     </div>
   );
 }
+
 
 
