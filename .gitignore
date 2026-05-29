@@ -29,3 +29,5 @@ pnpm-debug.log*
 # Large Media files (exceeds GitHub limits)
 AQUARA_Hero_HD.mp4
 *.mp4
+
+.vercel

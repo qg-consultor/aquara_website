@@ -13,159 +13,45 @@
     <nav class="navbar glass">
         <a href="#" class="logo" id="nav-logo">
             <svg viewBox="0 0 24 24">
-                <path d="M12,2A10,10 0 0,0 2,12C2,16.58 5.08,20.44 9.27,21.54C9.74,21.62 9.91,21.34 9.91,21.09C9.91,20.87 9.9,20.28 9.9,19.5C7,20.13 6.39,18.12 6.39,18.12C5.91,16.9 5.22,16.57 5.22,16.57C4.27,15.92 5.29,15.93 5.29,15.93C6.34,16 6.89,17 6.89,17C7.82,18.6 9.34,18.14 9.94,17.87C10.03,17.2 10.3,16.74 10.6,16.47C8.28,16.2 5.84,15.31 5.84,11.33C5.84,10.2 6.24,9.27 6.9,8.54C6.79,8.28 6.44,7.23 7,5.8C7,5.8 7.87,5.5 9.86,6.85C10.69,6.62 11.57,6.5 12.45,6.5C13.33,6.5 14.21,6.62 15.04,6.85C17.03,5.5 17.9,5.8 17.9,5.8C18.46,7.23 18.11,8.28 18,8.54C18.66,9.27 19.06,10.2 19.06,11.33C19.06,15.32 16.61,16.2 14.28,16.46C14.65,16.78 14.98,17.41 14.98,18.37C14.98,19.74 14.97,20.85 14.97,21.09C14.97,21.34 15.14,21.63 15.62,21.54C19.82,20.43 22,16.57 22,12A10,10 0 0,0 12,2Z" style="display:none;"/>
                 <path d="M12,20C8.69,20 6,17.31 6,14C6,10 12,3.25 12,3.25C12,3.25 18,10 18,14C18,17.31 15.31,20 12,20Z"/>
             </svg>
             <span>AQUARA</span>
         </a>
         
         <ul class="nav-links" id="nav-links">
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#tecnologia">Tecnología</a></li>
-            <li><a href="#beneficios">Beneficios</a></li>
-            <li><a href="#contacto">Pre-Orden</a></li>
+            <li><a href="#" class="active">Inicio</a></li>
+            <li><a href="https://github.com/qg-consultor/aquara_website" target="_blank">Código</a></li>
         </ul>
 
-        <a href="#contacto" class="nav-btn" id="nav-cta-btn">Reservar Ahora</a>
-
-        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <a href="mailto:info@aquara.com" class="nav-btn" id="nav-cta-btn">Reservar Ahora</a>
     </nav>
 
-    <!-- HERO SECTION -->
+    <!-- INMERSIVE HERO SECTION -->
     <header class="hero" id="inicio">
-        <div id="hero-canvas" class="hero-video" style="background: transparent;"></div>
+        <!-- Interactive 3D WebGL Canvas Layer -->
+        <div id="hero-canvas" class="hero-canvas-container"></div>
         <div class="hero-overlay"></div>
         
-        <div class="hero-content">
-            <h1>El Agua en su <span class="gradient-text">Máxima Pureza</span></h1>
-            <p>Sistemas inteligentes de optimización hídrica para el hogar premium. Diseñados para restaurar la pureza molecular y los minerales esenciales del agua.</p>
-            <div class="cta-group">
-                <a href="#contacto" class="btn-primary" id="hero-primary-btn">Explorar Aquara Home</a>
-                <a href="#tecnologia" class="btn-secondary" id="hero-secondary-btn">Nuestra Ciencia</a>
+        <div class="hero-container container">
+            <div class="hero-text-side">
+                <span class="badge">Pureza Redefinida</span>
+                <h1>LA PUREZA<br><span class="gradient-text">REDEFINIDA</span></h1>
+                <p class="hero-subtitle">Pura Innovación</p>
+                <p class="hero-description">Experimenta un cuerpo de agua vivo, hiperrealista y en constante movimiento que responde al tacto de tu presencia. Ingeniería hídrica y arte digital combinados para redefinir el lujo natural en tu hogar.</p>
+                <div class="cta-group">
+                    <a href="mailto:info@aquara.com" class="btn-primary" id="hero-primary-btn">Explorar Aquara Home</a>
+                </div>
+            </div>
+            <div class="hero-interactive-zone">
+                <!-- Visual balance space. Canvas fills the background and aligns its interaction zone here -->
+                <div class="interaction-hint">
+                    <span class="hint-dot"></span> Mueve tu cursor para interactuar con el agua
+                </div>
             </div>
         </div>
-
-        <a href="#tecnologia" class="scroll-indicator" id="scroll-indicator" aria-label="Desplazarse hacia abajo">
-            <div class="mouse">
-                <div class="wheel"></div>
-            </div>
-        </nav>
     </header>
 
-    <!-- TECNOLOGIA / FEATURES -->
-    <section class="section-padding container" id="tecnologia">
-        <div style="text-align: center; max-width: 600px; margin: 0 auto 2rem;">
-            <h2 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;">Filtración Molecular Avanzada</h2>
-            <p>Ingeniería de vanguardia que recrea el ciclo natural de purificación de la tierra directamente en tu grifo.</p>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card glass" id="feat-1">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12,2C11.5,2 11,2.19 10.59,2.59L2.59,10.59C1.8,11.37 1.8,12.63 2.59,13.41L10.59,21.41C11.37,22.2 12.63,22.2 13.41,21.41L21.41,13.41C22.2,12.63 22.2,11.37 21.41,10.59L13.41,2.59C13,2.19 12.5,2 12,2M12,5C15.87,5 19,8.13 19,12C19,15.87 15.87,19 12,19C8.13,19 5,15.87 5,12C5,8.13 8.13,5 12,5M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/></svg>
-                </div>
-                <h3>Precisión Molecular</h3>
-                <p>Retención del 99.9% de microplásticos, metales pesados y trazas orgánicas mediante nanoporos bio-miméticos.</p>
-            </div>
-
-            <div class="feature-card glass" id="feat-2">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
-                </div>
-                <h3>Remineralización</h3>
-                <p>Infunde electrolitos biodisponibles, calcio y magnesio en proporciones perfectas para una hidratación celular óptima.</p>
-            </div>
-
-            <div class="feature-card glass" id="feat-3">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6V12L16,14L16.8,12.7L13.5,10.8V6H12Z"/></svg>
-                </div>
-                <h3>Inteligencia Hídrica</h3>
-                <p>Monitoriza en tiempo real el consumo, la calidad del agua (TDS) y el estado del cartucho mediante la App Aquara Connect.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- TECNOLOGIA DETALLADA / SHOWCASE -->
-    <section class="section-padding container" id="beneficios">
-        <div class="tech-layout">
-            <div class="tech-image-wrapper glass" id="tech-image">
-                <div class="tech-image-placeholder">
-                    <div class="tech-icon">💧</div>
-                    <h3 style="margin-top: 1.5rem; color: var(--primary);">Aquara Core Pro</h3>
-                    <p style="font-size: 0.95rem; margin-top: 0.5rem; max-width: 320px;">Estructura de filtrado de 7 etapas encapsulada en aluminio aeroespacial y vidrio templado.</p>
-                </div>
-            </div>
-
-            <div class="tech-content">
-                <h2 class="gradient-text" style="font-size: 2.8rem;">Diseñado para el Bienestar Diario</h2>
-                <p>Nuestra tecnología patentada va más allá de limpiar el agua; reestructura su composición para mejorar la digestión, potenciar la energía y restaurar la vitalidad natural de tu piel.</p>
-                
-                <div class="stat-group">
-                    <div class="stat-item" id="stat-1">
-                        <h4>99.9%</h4>
-                        <p>Pureza Absoluta</p>
-                    </div>
-                    <div class="stat-item" id="stat-2">
-                        <h4>7.8 pH</h4>
-                        <p>Alcalinidad Equilibrada</p>
-                    </div>
-                    <div class="stat-item" id="stat-3">
-                        <h4>100%</h4>
-                        <p>Sin Plásticos de un Solo Uso</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- PRE-ORDEN / CONTACTO -->
-    <section class="section-padding container" id="contacto">
-        <div class="contact-wrapper glass">
-            <h2 class="gradient-text" style="font-size: 2.5rem;">Reserva tu Aquara Home</h2>
-            <p style="max-width: 500px; margin: 0 auto 1.5rem;">Sé de los primeros en experimentar el futuro del agua premium. Completa el formulario de reserva sin pago inmediato.</p>
-
-            <form class="contact-form" id="booking-form">
-                <div class="form-group">
-                    <label for="name">Nombre Completo</label>
-                    <input type="text" id="name" class="form-input" placeholder="Tu nombre" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Correo Electrónico</label>
-                    <input type="email" id="email" class="form-input" placeholder="tu@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="plan">Modelo de Interés</label>
-                    <select id="plan" class="form-input" style="background-color: var(--bg-dark);" required>
-                        <option value="Aquara Core Pro">Aquara Core Pro — Hogar & Cocina</option>
-                        <option value="Aquara Whole Home">Aquara Whole Home — Toda la Residencia</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-primary" style="margin-top: 1rem;" id="submit-btn">Solicitar Reserva</button>
-            </form>
-
-            <div class="success-message" id="success-banner">
-                <h4>¡Reserva Recibida con Éxito!</h4>
-                <p>Te hemos enviado un correo con los detalles del lanzamiento y los pasos de confirmación de tu pre-orden personalizada.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 Aquara Technologies S.L. Todos los derechos reservados. Redefiniendo el agua premium.</p>
-        </div>
-    </footer>
-
-    <script src="index.js"></script>
+    <script type="module" src="index.js"></script>
     <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
