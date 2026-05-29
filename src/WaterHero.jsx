@@ -73,93 +73,75 @@ class ImprovedNoise {
 
 const perlin = new ImprovedNoise();
 
-const WaterShape = () => {
+// Reusable animated fluid droplet component
+const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity, noiseSpeed, hoverPower, followSpeedFactor }) => {
   const meshRef = useRef();
-  const materialRef = useRef();
   const [hovered, setHovered] = useState(false);
-  
-  // Track cursor velocity and properties for dynamic ripple physics
   const lastPointer = useRef({ x: 0, y: 0 });
   const pointerSpeed = useRef(0);
 
   const stateValues = useRef({
-    intensity: 0.12,  // Reduced starting deformation for a smoother look
-    speed: 0.6,       // Slower, more majestic waves
+    intensity: noiseIntensity,
+    speed: noiseSpeed,
     scale: 1.0,
-    ior: 1.333,
-    chromaticAberration: 0.04,
   });
 
-  const baseRadius = 2.1;
-  // Using high-segment SphereGeometry + smooth shading for flawless organic water shape
-  const geometry = useMemo(() => new THREE.SphereGeometry(baseRadius, 64, 64), []);
+  const geometry = useMemo(() => new THREE.SphereGeometry(radius, segments, segments), [radius, segments]);
   const originalPositions = useMemo(() => geometry.attributes.position.clone(), [geometry]);
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
 
-    // Calculate cursor movement speed/velocity
+    // Track pointer speed
     const dx = state.pointer.x - lastPointer.current.x;
     const dy = state.pointer.y - lastPointer.current.y;
-    // Lower multiplier (0.015) to make it much less sensitive to sudden mouse jerks
-    pointerSpeed.current = Math.min(Math.sqrt(dx * dx + dy * dy) / Math.max(delta, 0.001), 12);
+    pointerSpeed.current = Math.min(Math.sqrt(dx * dx + dy * dy) / Math.max(delta, 0.001), 10);
     lastPointer.current = { x: state.pointer.x, y: state.pointer.y };
 
-    // Gentle premium organic rotation
-    meshRef.current.rotation.y += delta * 0.07;
-    meshRef.current.rotation.z += delta * 0.03;
+    // Fluid idle rotation
+    meshRef.current.rotation.y += delta * 0.06;
+    meshRef.current.rotation.z += delta * 0.02;
 
-    // Dynamic states based on cursor movement and hover (softened multipliers)
-    const targetIntensity = hovered ? 0.35 : 0.12 + (pointerSpeed.current * 0.015);
-    const targetSpeed = hovered ? 1.2 : 0.6 + (pointerSpeed.current * 0.03);
-    const targetScale = hovered ? 1.05 : 1.0 + (pointerSpeed.current * 0.004);
-    
-    // Water index of refraction shifts
-    const targetIor = 1.333 + (pointerSpeed.current * 0.002);
-    const targetDispersion = 0.04 + (pointerSpeed.current * 0.005);
+    // Soft cursor reactions
+    const targetIntensity = hovered ? noiseIntensity * hoverPower : noiseIntensity + (pointerSpeed.current * 0.01);
+    const targetSpeed = hovered ? noiseSpeed * 1.5 : noiseSpeed + (pointerSpeed.current * 0.02);
+    const targetScale = hovered ? 1.05 : 1.0;
 
-    // High smooth dampening values (0.75 - 0.9s response times) to make it float like elegant heavy liquid
     easing.damp(stateValues.current, 'intensity', targetIntensity, 0.8, delta);
     easing.damp(stateValues.current, 'speed', targetSpeed, 0.9, delta);
-    easing.damp(stateValues.current, 'scale', targetScale, 0.6, delta);
-    easing.damp(stateValues.current, 'ior', targetIor, 0.6, delta);
-    easing.damp(stateValues.current, 'chromaticAberration', targetDispersion, 0.7, delta);
+    easing.damp(stateValues.current, 'scale', targetScale, 0.5, delta);
 
-    // Apply scale dynamically
     const s = stateValues.current.scale;
     meshRef.current.scale.set(s, s, s);
 
-    // Subtle position follow mouse: higher followFactor (28) for subtle movement
+    // Map desktop/mobile offset
     const isMobile = state.viewport.width < 7.5;
     const centerOffset = isMobile ? 0 : state.viewport.width * 0.22;
     const verticalOffset = isMobile ? -state.viewport.height * 0.05 : 0;
-    
-    const targetX = centerOffset + (state.pointer.x * state.viewport.width) / 28;
-    const targetY = verticalOffset + (state.pointer.y * state.viewport.height) / 28;
-    // Increased dampening time to 1.1s for extreme cinematic smoothness
-    easing.damp3(meshRef.current.position, [targetX, targetY, 0], 1.1, delta);
 
-    // Dynamic organic vertex displacement (multi-octave Perlin noise)
+    // Smooth movement with lag, establishing natural liquid hierarchy (smaller drops lag less or more)
+    const targetX = centerOffset + initialPos[0] + (state.pointer.x * state.viewport.width) / followSpeedFactor;
+    const targetY = verticalOffset + initialPos[1] + (state.pointer.y * state.viewport.height) / followSpeedFactor;
+    
+    easing.damp3(meshRef.current.position, [targetX, targetY, initialPos[2]], 1.1, delta);
+
+    // Vertex displacement calculations (Perlin liquid noise)
     const time = state.clock.elapsedTime * stateValues.current.speed;
     const positions = geometry.attributes.position;
     const vertex = new THREE.Vector3();
-    const noiseScale = 0.55; // Lower frequency noise for larger, more realistic liquid waves
 
     for (let i = 0; i < positions.count; i++) {
       vertex.fromBufferAttribute(originalPositions, i);
       
       const nx = vertex.x * noiseScale + time;
-      const ny = vertex.y * noiseScale - time * 0.55;
-      const nz = vertex.z * noiseScale + time * 0.75;
+      const ny = vertex.y * noiseScale - time * 0.6;
+      const nz = vertex.z * noiseScale + time * 0.8;
 
-      // Premium heavy liquid ripples
       let noiseVal = perlin.noise(nx, ny, nz) * 1.0;
-      noiseVal += perlin.noise(nx * 2.0, ny * 2.0, nz * 2.0) * 0.25;
+      noiseVal += perlin.noise(nx * 2.0, ny * 2.0, nz * 2.0) * 0.3;
       
-      // Calculate dynamic ripple displacement
       const displacement = noiseVal * stateValues.current.intensity;
-      
-      vertex.normalize().multiplyScalar(baseRadius + displacement);
+      vertex.normalize().multiplyScalar(radius + displacement);
       positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
 
@@ -175,21 +157,20 @@ const WaterShape = () => {
       onPointerOut={() => setHovered(false)}
     >
       <MeshTransmissionMaterial
-        ref={materialRef}
         transmission={1.0}
-        thickness={2.4}            // Increased thickness for deep refraction
-        roughness={0.005}          // High glassiness polish
-        ior={stateValues.current.ior}
-        chromaticAberration={stateValues.current.chromaticAberration}
-        anisotropy={0.8}
-        color="#e6f7ff"            // Clear pure mineral water shade
-        distortion={0.12}          // Reduced distortion for highly crystal transparent quality
+        thickness={2.4}
+        roughness={0.002}               // Completely polished liquid surface
+        ior={1.333}                     // Perfect water refraction index
+        chromaticAberration={0.05}      // Subtle beautiful rainbow splits
+        anisotropy={0.9}
+        color="#f0f9ff"                 // Pristine hyper-pure transparent mineral water
+        distortion={0.12}
         distortionScale={0.3}
-        temporalDistortion={0.08}
+        temporalDistortion={0.06}
         clearcoat={1.0}
-        clearcoatRoughness={0.005}
+        clearcoatRoughness={0.002}
         attenuationColor="#ffffff"
-        attenuationDistance={3.0}
+        attenuationDistance={3.5}
         backside={true}
       />
     </mesh>
@@ -204,50 +185,86 @@ export default function WaterHeroComponent() {
         dpr={[1, 2]} 
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={0.35} color="#e0f2fe" />
+        <ambientLight intensity={0.4} color="#e0f2fe" />
         
-        {/* Soft, studio direct lights for glassy highlights without hard shadows */}
-        <directionalLight position={[8, 8, 4]} intensity={4.5} color="#ffffff" />
-        <directionalLight position={[-8, -5, -4]} intensity={2.8} color="#1e40af" />
+        {/* Soft studio lights targeting the fluid to create bright white reflections/specular highlights */}
+        <directionalLight position={[10, 10, 5]} intensity={5.0} color="#ffffff" />
+        <directionalLight position={[-10, -5, -4]} intensity={3.5} color="#1d4ed8" />
         <directionalLight position={[0, -8, 2]} intensity={2.5} color="#00f2fe" />
-        <pointLight position={[6, -6, 6]} intensity={3.0} color="#f0f9ff" />
+        <pointLight position={[6, -6, 6]} intensity={3.0} color="#ffffff" />
 
-        {/* Midnight deep blue studio backdrop environment reflection */}
+        {/* Dynamic Studio Environment reflections designed for beautiful high-contrast glassy edges */}
         <Environment resolution={512}>
           <color attach="background" args={['#030712']} />
           <Lightformer 
             form="rect" 
-            intensity={9} 
+            intensity={12} 
             position={[5, 6, 2]} 
-            scale={[14, 7, 1]} 
+            scale={[16, 8, 1]} 
             target={[0, 0, 0]} 
             color="#ffffff"
           />
           <Lightformer 
             form="circle" 
-            intensity={7} 
-            position={[-6, 5, -3]} 
-            scale={[10, 10, 1]} 
+            intensity={8} 
+            position={[-7, 5, -3]} 
+            scale={[12, 12, 1]} 
             target={[0, 0, 0]} 
             color="#00f2fe"
           />
           <Lightformer 
             form="rect" 
-            intensity={5} 
-            position={[0, -7, 4]} 
-            scale={[18, 4, 1]} 
+            intensity={6} 
+            position={[0, -8, 4]} 
+            scale={[20, 4, 1]} 
             target={[0, 0, 0]} 
             color="#3b82f6"
           />
         </Environment>
 
-        <Float speed={1.2} rotationIntensity={0.2} floatIntensity={0.4}>
-          <WaterShape />
+        {/* Group floating in sync */}
+        <Float speed={1.0} rotationIntensity={0.15} floatIntensity={0.35}>
+          {/* Main big water body (organic aspherical deformation) */}
+          <WaterDroplet 
+            radius={2.1} 
+            segments={64} 
+            initialPos={[0, 0, 0]} 
+            noiseScale={0.5} 
+            noiseIntensity={0.14} 
+            noiseSpeed={0.5} 
+            hoverPower={2.0}
+            followSpeedFactor={28}
+          />
+          
+          {/* Top-Right satellite droplet (mimics the reference photo) */}
+          <WaterDroplet 
+            radius={0.45} 
+            segments={32} 
+            initialPos={[1.6, 2.0, -0.5]} 
+            noiseScale={0.8} 
+            noiseIntensity={0.08} 
+            noiseSpeed={0.9} 
+            hoverPower={1.8}
+            followSpeedFactor={22} // Slightly faster reaction for tiny droplet inertia
+          />
+
+          {/* Bottom-Left satellite droplet (adds fluid splash depth) */}
+          <WaterDroplet 
+            radius={0.25} 
+            segments={32} 
+            initialPos={[-1.2, -1.8, 0.2]} 
+            noiseScale={1.2} 
+            noiseIntensity={0.06} 
+            noiseSpeed={1.2} 
+            hoverPower={1.5}
+            followSpeedFactor={24}
+          />
         </Float>
       </Canvas>
     </div>
   );
 }
+
 
 
 
