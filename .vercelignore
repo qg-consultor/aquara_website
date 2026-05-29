@@ -1,0 +1,9 @@
+# Large media files
+AQUARA_Hero_HD.mp4
+*.mp4
+
+# Dependencies (installed during build)
+node_modules
+
+# Build output
+dist
