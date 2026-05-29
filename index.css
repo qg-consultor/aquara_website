@@ -205,7 +205,7 @@ p {
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 65% 50%, rgba(3, 7, 18, 0) 0%, rgba(3, 7, 18, 0.7) 60%, var(--bg-dark) 95%);
+    background: radial-gradient(circle at 75% 50%, rgba(29, 78, 216, 0.18) 0%, rgba(3, 7, 18, 0.45) 45%, var(--bg-dark) 95%);
     z-index: 2;
     pointer-events: none;
 }

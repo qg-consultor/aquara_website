@@ -158,19 +158,19 @@ const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity
     >
       <MeshTransmissionMaterial
         transmission={1.0}
-        thickness={2.4}
-        roughness={0.002}               // Completely polished liquid surface
-        ior={1.333}                     // Perfect water refraction index
-        chromaticAberration={0.05}      // Subtle beautiful rainbow splits
-        anisotropy={0.9}
-        color="#f0f9ff"                 // Pristine hyper-pure transparent mineral water
-        distortion={0.12}
-        distortionScale={0.3}
-        temporalDistortion={0.06}
+        thickness={2.5}                 // Deep optical refraction thickness
+        roughness={0.0}                 // Flawless glossy liquid surface
+        ior={1.333}                     // Refractive Index of pure Water
+        chromaticAberration={0.06}      // Elegant prism rainbow color dispersion in the glassy edges
+        anisotropy={0.95}
+        color="#e0f2fe"                 // Pristine clear transparent blue water shade
+        distortion={0.15}
+        distortionScale={0.35}
+        temporalDistortion={0.05}
         clearcoat={1.0}
-        clearcoatRoughness={0.002}
-        attenuationColor="#ffffff"
-        attenuationDistance={3.5}
+        clearcoatRoughness={0.0}
+        attenuationColor="#2563eb"      // Sapphire blue concentration inside thick water folds
+        attenuationDistance={1.8}       // High purity zafiro depth effect
         backside={true}
       />
     </mesh>
@@ -185,40 +185,41 @@ export default function WaterHeroComponent() {
         dpr={[1, 2]} 
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={0.4} color="#e0f2fe" />
+        {/* Soft, zafiro blue ambient fill light to mimic the starry cosmic backdrop */}
+        <ambientLight intensity={0.45} color="#1d4ed8" />
         
-        {/* Soft studio lights targeting the fluid to create bright white reflections/specular highlights */}
-        <directionalLight position={[10, 10, 5]} intensity={5.0} color="#ffffff" />
-        <directionalLight position={[-10, -5, -4]} intensity={3.5} color="#1d4ed8" />
-        <directionalLight position={[0, -8, 2]} intensity={2.5} color="#00f2fe" />
-        <pointLight position={[6, -6, 6]} intensity={3.0} color="#ffffff" />
+        {/* Crisp cinematic direct lighting from the top-left to cast desaturating white edge reflections */}
+        <directionalLight position={[12, 12, 6]} intensity={5.5} color="#ffffff" />
+        <directionalLight position={[-12, -6, -4]} intensity={3.5} color="#1e40af" />
+        <directionalLight position={[0, -10, 2]} intensity={3.0} color="#00f2fe" />
+        <pointLight position={[8, -8, 8]} intensity={3.5} color="#f0f9ff" />
 
         {/* Dynamic Studio Environment reflections designed for beautiful high-contrast glassy edges */}
         <Environment resolution={512}>
           <color attach="background" args={['#030712']} />
           <Lightformer 
             form="rect" 
-            intensity={12} 
-            position={[5, 6, 2]} 
-            scale={[16, 8, 1]} 
+            intensity={14} 
+            position={[6, 7, 2]} 
+            scale={[18, 9, 1]} 
             target={[0, 0, 0]} 
             color="#ffffff"
           />
           <Lightformer 
             form="circle" 
-            intensity={8} 
-            position={[-7, 5, -3]} 
-            scale={[12, 12, 1]} 
+            intensity={9} 
+            position={[-8, 6, -3]} 
+            scale={[14, 14, 1]} 
             target={[0, 0, 0]} 
             color="#00f2fe"
           />
           <Lightformer 
             form="rect" 
-            intensity={6} 
-            position={[0, -8, 4]} 
-            scale={[20, 4, 1]} 
+            intensity={7} 
+            position={[0, -9, 4]} 
+            scale={[22, 4, 1]} 
             target={[0, 0, 0]} 
-            color="#3b82f6"
+            color="#2563eb"
           />
         </Environment>
 
@@ -264,6 +265,7 @@ export default function WaterHeroComponent() {
     </div>
   );
 }
+
 
 
 
