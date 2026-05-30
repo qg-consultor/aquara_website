@@ -96,9 +96,10 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
-const MiniDroplets = ({ drop1Ref, drop2Ref }) => {
+const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
   const mesh1 = useRef();
   const mesh2 = useRef();
+  const mesh3 = useRef();
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -115,6 +116,14 @@ const MiniDroplets = ({ drop1Ref, drop2Ref }) => {
     // Droplet 2: smaller, orbiting slightly around the side
     if (mesh2.current && drop2Ref.current) {
       mesh2.current.position.copy(drop2Ref.current);
+    }
+    
+    // Droplet 3: Emerging from the top
+    if (mesh3.current && drop3Ref.current) {
+      mesh3.current.position.copy(drop3Ref.current);
+      // Make it pulse slightly as it emerges
+      const scale3 = 1 + Math.sin(t * 2.0) * 0.05;
+      mesh3.current.scale.setScalar(scale3);
     }
   });
 
@@ -157,6 +166,25 @@ const MiniDroplets = ({ drop1Ref, drop2Ref }) => {
           resolution={256}
         />
       </mesh>
+      
+      {/* Top emerging droplet */}
+      <mesh ref={mesh3}>
+        <sphereGeometry args={[0.4, 32, 32]} />
+        <MeshTransmissionMaterial
+          transmission={1.0}
+          thickness={0.9}
+          roughness={0.05}
+          ior={1.2}
+          chromaticAberration={0.04}
+          color="#ffffff"
+          attenuationColor="#a6dfff"
+          attenuationDistance={1.5}
+          clearcoat={0.5}
+          clearcoatRoughness={0.2}
+          samples={4}
+          resolution={256}
+        />
+      </mesh>
     </>
   );
 };
@@ -172,6 +200,7 @@ const LiquidBlob = () => {
   // Dynamic refs for the mini droplets positions
   const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
   const drop2Ref = useRef(new THREE.Vector3(3.6, -1.5, 0));
+  const drop3Ref = useRef(new THREE.Vector3(-1.8, 3.4, 0)); // Top droplet
 
   const { viewport, pointer } = useThree();
 
@@ -222,6 +251,10 @@ const LiquidBlob = () => {
     drop2Ref.current.x = 3.6 * Math.cos(t * 0.5);
     drop2Ref.current.z = 3.6 * Math.sin(t * 0.5);
     drop2Ref.current.y = -1.5 + Math.cos(t * 0.8) * 0.3;
+    
+    // Top droplet slowly moves up and down
+    drop3Ref.current.x = -1.8 + Math.sin(t * 0.8) * 0.2;
+    drop3Ref.current.y = 3.3 + Math.cos(t * 1.2) * 0.15;
 
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
@@ -251,6 +284,10 @@ const LiquidBlob = () => {
     const d2x = drop2Ref.current.x / localScale;
     const d2y = drop2Ref.current.y / localScale;
     const d2z = drop2Ref.current.z / localScale;
+    
+    const d3x = drop3Ref.current.x / localScale;
+    const d3y = drop3Ref.current.y / localScale;
+    const d3z = drop3Ref.current.z / localScale;
 
     let ix = 0;
     for (let i = 0; i < count; i++) {
@@ -285,6 +322,10 @@ const LiquidBlob = () => {
       const dist2 = Math.sqrt((bx - d2x)**2 + (by - d2y)**2 + (bz - d2z)**2);
       const pull2 = Math.exp(-dist2 * dist2 * 2.5) * 1.5;
       d += pull2;
+      
+      const dist3 = Math.sqrt((bx - d3x)**2 + (by - d3y)**2 + (bz - d3z)**2);
+      const pull3 = Math.exp(-dist3 * dist3 * 2.5) * 1.6;
+      d += pull3;
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
@@ -334,7 +375,7 @@ const LiquidBlob = () => {
             toneMapped={true}
           />
           </mesh>
-          <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} />
+          <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} />
         </group>
       </Float>
       
