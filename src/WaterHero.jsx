@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { easing } from 'maath';
 
 // ── Interactive Star/Particle Field ──
-const InteractiveStarField = ({ count = 400 }) => {
+const InteractiveStarField = ({ count = 3500 }) => {
   const ref = useRef();
   const { viewport, pointer } = useThree();
   const mouse = useRef(new THREE.Vector2(0, 0));
@@ -17,9 +17,10 @@ const InteractiveStarField = ({ count = 400 }) => {
     const rand = new Float32Array(count); 
     
     for (let i = 0; i < count; i++) {
-      const x = (Math.random() - 0.5) * 20;
-      const y = (Math.random() - 0.5) * 15;
-      const z = (Math.random() - 0.5) * 10 - 2;
+      // Spread across the entire screen and deep into the background to fill the frame
+      const x = (Math.random() - 0.5) * 80;
+      const y = (Math.random() - 0.5) * 50;
+      const z = (Math.random() - 0.5) * 40 - 10;
       
       pos[i*3] = orig[i*3] = x;
       pos[i*3+1] = orig[i*3+1] = y;
@@ -88,8 +89,8 @@ const InteractiveStarField = ({ count = 400 }) => {
 };
 
 // ── Water Droplets Emitted on Hover ──
-const Droplets = ({ count = 20, active, blobPosition }) => {
-  const ref = useRef();
+const Droplets = ({ count = 25, active, blobPosition }) => {
+  const meshRef = useRef();
   
   const dropletsData = useRef(
     Array.from({ length: count }, () => ({
@@ -102,17 +103,10 @@ const Droplets = ({ count = 20, active, blobPosition }) => {
   );
 
   const geometry = useMemo(() => new THREE.SphereGeometry(0.06, 16, 16), []);
-  // Use THREE.MeshPhysicalMaterial instead of Drei's component for instanced/mapped droplets
-  const material = useMemo(() => new THREE.MeshPhysicalMaterial({
-     transmission: 1, 
-     ior: 1.33, 
-     thickness: 0.5, 
-     roughness: 0.0, 
-     color: new THREE.Color("#e0f7fa")
-  }), []);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
-    if (!ref.current) return;
+    if (!meshRef.current) return;
     
     // Activate new droplets if hovering
     if (active && Math.random() > 0.6) {
@@ -136,36 +130,47 @@ const Droplets = ({ count = 20, active, blobPosition }) => {
       }
     }
 
-    ref.current.children.forEach((mesh, i) => {
+    for (let i = 0; i < count; i++) {
       const data = dropletsData.current[i];
       if (data.active) {
         data.life += delta;
-        
         if (data.life > data.maxLife) {
           data.active = false;
-          mesh.visible = false;
+          dummy.scale.set(0, 0, 0);
         } else {
-          mesh.visible = true;
           data.velocity.y -= delta * 2.5; // Gravity
           data.offset.addScaledVector(data.velocity, delta);
           
-          mesh.position.copy(blobPosition).add(data.offset);
-          
+          dummy.position.copy(blobPosition).add(data.offset);
           const scale = Math.max(0, 1 - (data.life / data.maxLife));
-          mesh.scale.setScalar(scale);
+          dummy.scale.setScalar(scale);
         }
       } else {
-        mesh.visible = false;
+        dummy.scale.set(0, 0, 0);
       }
-    });
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <group ref={ref}>
-      {Array.from({ length: count }).map((_, i) => (
-        <mesh key={i} geometry={geometry} material={material} visible={false} />
-      ))}
-    </group>
+    <instancedMesh ref={meshRef} args={[geometry, null, count]}>
+      <MeshTransmissionMaterial
+        transmission={1}
+        ior={1.33}
+        thickness={1.5}
+        roughness={0.05}
+        chromaticAberration={0.03}
+        color="#e0f7fa"
+        samples={8}
+        resolution={256}
+        clearcoat={1}
+        attenuationDistance={0.6}
+        attenuationColor="#4a9eff"
+        toneMapped={true}
+      />
+    </instancedMesh>
   );
 };
 
@@ -176,6 +181,7 @@ const LiquidBlob = () => {
   const [hovered, setHovered] = useState(false);
   const amplitudeRef = useRef(0.12);
   const speedRef = useRef(0.6);
+  const hoverFactorRef = useRef(0);
   const pointerSmooth = useRef(new THREE.Vector2(0,0));
   
   const { viewport, pointer } = useThree();
@@ -197,14 +203,18 @@ const LiquidBlob = () => {
     easing.damp(pointerSmooth.current, 'x', pointer.x, 0.15, delta);
     easing.damp(pointerSmooth.current, 'y', pointer.y, 0.15, delta);
 
-    const tgtAmp = hovered ? 0.28 : 0.12; 
-    const tgtSpd = hovered ? 1.6 : 0.6;
+    const tgtAmp = hovered ? 0.25 : 0.12; 
+    const tgtSpd = hovered ? 1.5 : 0.6;
+    const tgtHover = hovered ? 1 : 0;
     
-    easing.damp(amplitudeRef, 'current', tgtAmp, 0.25, delta);
-    easing.damp(speedRef, 'current', tgtSpd, 0.35, delta);
+    // Increased dampening times for a much smoother, luxurious transition
+    easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
+    easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
+    easing.damp(hoverFactorRef, 'current', tgtHover, 0.7, delta);
 
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
+    const hoverFactor = hoverFactorRef.current;
     
     const pos = mesh.current.geometry.attributes.position.array;
     const orig = mesh.current.geometry.userData.orig;
@@ -223,14 +233,16 @@ const LiquidBlob = () => {
         Math.sin((nx + ny) * 4.0 + t * speed * 0.6) * 0.15 +
         Math.cos((ny + nz) * 2.5 - t * speed * 0.9) * 0.1;
         
-      if (hovered) {
+      if (hoverFactor > 0.01) {
          // Map pointer to object space for bulge effect
          const pX = pointerSmooth.current.x * 2.5; 
          const pY = pointerSmooth.current.y * 2.5;
          
          const distToPointer = Math.sqrt(Math.pow(nx - pX, 2) + Math.pow(ny - pY, 2));
-         const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.7);
-         d += cursorInfluence * 0.4; 
+         
+         // Smoothly fade the cursor influence using hoverFactor
+         const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.7) * hoverFactor;
+         d += cursorInfluence * 0.5; 
       }
 
       const r = len + d * amplitude;
@@ -242,8 +254,8 @@ const LiquidBlob = () => {
     mesh.current.geometry.attributes.position.needsUpdate = true;
     mesh.current.geometry.computeVertexNormals();
 
-    mesh.current.rotation.y = t * 0.04 + pointerSmooth.current.x * 0.15;
-    mesh.current.rotation.x = pointerSmooth.current.y * -0.15;
+    mesh.current.rotation.y = t * 0.04 + pointerSmooth.current.x * (0.15 + hoverFactor * 0.1);
+    mesh.current.rotation.x = pointerSmooth.current.y * -(0.15 + hoverFactor * 0.1);
     mesh.current.rotation.z = Math.sin(t * 0.03) * 0.03;
   });
 
@@ -266,8 +278,8 @@ const LiquidBlob = () => {
             color="#e0f7fa"
             backside
             backsideThickness={0.3}
-            samples={16}
-            resolution={1024}
+            samples={8}
+            resolution={512}
             clearcoat={1}
             attenuationDistance={0.6}
             attenuationColor="#4a9eff"
@@ -284,8 +296,23 @@ const LiquidBlob = () => {
 // ── Scene ──
 export default function WaterHeroComponent() {
   return (
-    <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+    <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, zIndex: 1, overflow: 'hidden' }}>
+      {/* Background Central Glow / Destello */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '70vw',
+        height: '70vw',
+        background: 'radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, rgba(29, 78, 216, 0.05) 40%, transparent 70%)',
+        zIndex: 0,
+        pointerEvents: 'none',
+        filter: 'blur(40px)'
+      }} />
+
       <Canvas
+        style={{ zIndex: 1 }}
         camera={{ position: [0, 0, 8], fov: 42 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
@@ -297,7 +324,7 @@ export default function WaterHeroComponent() {
 
         <Environment preset="city" />
 
-        <InteractiveStarField count={450} />
+        <InteractiveStarField count={3500} />
 
         <Suspense fallback={null}>
           <LiquidBlob />
