@@ -372,8 +372,6 @@ export default function WaterHeroComponent() {
         <directionalLight position={[5, 10, 8]} intensity={2.0} color="#ffffff" />
         {/* Soft fill light */}
         <directionalLight position={[-10, -5, 5]} intensity={1.0} color="#dcedff" />
-        {/* Strong backlight for glowing contour - colored blue and soft screen-like blend */}
-        <spotLight position={[0, 0, -8]} intensity={8} color="#00aaff" distance={25} penumbra={1.0} angle={Math.PI / 1.5} />
         <pointLight position={[0, -5, 5]} intensity={1.0} color="#ffffff" />
 
         <Suspense fallback={null}>
@@ -398,16 +396,6 @@ export default function WaterHeroComponent() {
               scale={[4, 10, 1]} 
               target={[0, 0, 0]} 
               color="#e6f7ff"
-            />
-            
-            {/* Giant ring behind the sphere to create a glowing soft rim contour - colored blue */}
-            <Lightformer 
-              form="ring" 
-              intensity={4} 
-              position={[0, 0, -5]} 
-              scale={[12, 12, 1]} 
-              target={[0, 0, 0]} 
-              color="#00aaff"
             />
           </Environment>
         </Suspense>
