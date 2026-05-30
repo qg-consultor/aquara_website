@@ -194,9 +194,9 @@ export default function WaterHeroComponent() {
         <directionalLight position={[0, -10, 2]} intensity={2.5} color="#60a5fa" />
         <pointLight position={[8, -8, 8]} intensity={4.0} color="#ffffff" />
 
-        {/* Dynamic Studio Environment reflections: We change the background to #0d2866 (Deep blue) instead of black so the glass is filled with zafiro sky-blue light! */}
+        {/* Dynamic Studio Environment reflections */}
         <Environment resolution={512}>
-          <color attach="background" args={['#06153b']} />
+          <color attach="background" args={['#050d24']} />
           <Lightformer 
             form="rect" 
             intensity={16} 
