@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { easing } from 'maath';
 
 // ── Water Droplets Emitted on Hover ──
-const Droplets = ({ count = 15, blobPosition }) => {
+const Droplets = ({ count = 15, active, blobPosition }) => {
   const meshRef = useRef();
   
   const dropletsData = useRef(
@@ -25,8 +25,8 @@ const Droplets = ({ count = 15, blobPosition }) => {
   useFrame((state, delta) => {
     if (!meshRef.current) return;
     
-    // Always emit slowly but randomly
-    if (Math.random() > 0.92) {
+    // Always emit slowly but randomly when hovered
+    if (active && Math.random() > 0.92) {
       const inactiveDroplet = dropletsData.current.find(d => !d.active);
       if (inactiveDroplet) {
         inactiveDroplet.active = true;
@@ -96,6 +96,7 @@ const Droplets = ({ count = 15, blobPosition }) => {
 // ── Liquid Blob — vertex distortion via Math.sin/cos, hover-reactive ──
 const LiquidBlob = () => {
   const mesh = useRef();
+  const [hovered, setHovered] = useState(false);
   const amplitudeRef = useRef(0.2); // Increased base amplitude
   const speedRef = useRef(1.0); // Moderate speed
   const pointerSmooth = useRef(new THREE.Vector2(0,0));
@@ -138,6 +139,12 @@ const LiquidBlob = () => {
     easing.damp(pointerSmooth.current, 'x', pointer.x, 0.15, delta);
     easing.damp(pointerSmooth.current, 'y', pointer.y, 0.15, delta);
 
+    const tgtAmp = hovered ? 0.35 : 0.2; 
+    const tgtSpd = hovered ? 1.5 : 1.0;
+    
+    easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
+    easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
+
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
     
@@ -175,9 +182,9 @@ const LiquidBlob = () => {
       const dy = ny - pY;
       const distToPointer = Math.sqrt(dx * dx + dy * dy);
       
-      // Much more sensitive radius (0.45 instead of 0.7) and stronger push (0.9 instead of 0.5)
-      const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.45);
-      d += cursorInfluence * 0.9; 
+      // Softer, wider radius (0.6) and smoother push (0.7) for fluidity
+      const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.6);
+      d += cursorInfluence * 0.7; 
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
@@ -202,6 +209,8 @@ const LiquidBlob = () => {
           ref={mesh}
           geometry={geometry}
           position={blobPosition}
+          onPointerOver={() => setHovered(true)}
+          onPointerOut={() => setHovered(false)}
         >
           <MeshTransmissionMaterial
             transmission={1}
@@ -222,7 +231,7 @@ const LiquidBlob = () => {
         </mesh>
       </Float>
       
-      <Droplets blobPosition={blobPosition} count={15} />
+      <Droplets active={hovered} blobPosition={blobPosition} count={15} />
     </>
   );
 };
