@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer } from '@react-three/drei';
+import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 
@@ -42,8 +42,8 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
           Math.sin(angle2) * Math.sin(angle1) * radius
         );
         
-        inactiveDroplet.velocity.copy(inactiveDroplet.offset).normalize().multiplyScalar(0.2); // Slow outward drift
-        inactiveDroplet.velocity.y += 0.2; // Slight upward bias
+        inactiveDroplet.velocity.copy(inactiveDroplet.offset).normalize().multiplyScalar(1.5 + Math.random() * 1.5);
+        inactiveDroplet.velocity.y += 1.0; // Upward boost
         inactiveDroplet.baseScale = Math.random() * 1.5 + 0.8;
       }
     }
@@ -56,11 +56,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
           data.active = false;
           dummy.scale.set(0, 0, 0);
         } else {
-          // Zero gravity, organic drift and orbit
-          data.velocity.x += (Math.random() - 0.5) * delta * 0.5;
-          data.velocity.y += (Math.random() - 0.5) * delta * 0.5;
-          data.velocity.z += (Math.random() - 0.5) * delta * 0.5;
-          
+          data.velocity.y -= delta * 2.5; // Gravity
           data.offset.addScaledVector(data.velocity, delta);
           
           dummy.position.copy(blobPosition).add(data.offset);
@@ -218,11 +214,11 @@ const LiquidBlob = () => {
         >
           <MeshTransmissionMaterial
             transmission={1}
-            ior={1.4}
-            thickness={2.0}
+            ior={1.33}
+            thickness={1.5}
             roughness={0.05}
-            chromaticAberration={0.04}
-            color="#ffffff"
+            chromaticAberration={0.03}
+            color="#e0f7fa"
             backside
             backsideThickness={0.3}
             samples={8}
@@ -269,14 +265,7 @@ export default function WaterHeroComponent() {
         <directionalLight position={[-6, -4, -4]} intensity={2.0} color="#1e40af" />
         <pointLight position={[0, -2, 5]} intensity={1.5} color="#00f2fe" distance={10} />
 
-        <Environment resolution={256}>
-          <group rotation={[-Math.PI / 2, 0, 0]}>
-            <Lightformer form="circle" intensity={4} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={10} color="white" />
-            <Lightformer form="circle" intensity={2} rotation-y={Math.PI / 2} position={[-10, 2, 0]} scale={20} color="#00f2fe" />
-            <Lightformer form="circle" intensity={2} rotation-y={-Math.PI / 2} position={[10, 2, 0]} scale={20} color="#1d4ed8" />
-            <Lightformer form="circle" intensity={2} rotation-x={-Math.PI / 2} position={[0, -5, 0]} scale={20} color="#0f172a" />
-          </group>
-        </Environment>
+        <Environment preset="city" />
 
 
         <Suspense fallback={null}>
