@@ -17,10 +17,21 @@ const InteractiveStarField = ({ count = 3500 }) => {
     const rand = new Float32Array(count); 
     
     for (let i = 0; i < count; i++) {
-      // Spread across the entire screen and deep into the background to fill the frame
-      const x = (Math.random() - 0.5) * 80;
-      const y = (Math.random() - 0.5) * 50;
-      const z = (Math.random() - 0.5) * 40 - 10;
+      // Base ambient spread
+      let x = (Math.random() - 0.5) * 40;
+      let y = (Math.random() - 0.5) * 30;
+      let z = (Math.random() - 0.5) * 20 - 2;
+
+      // 70% of particles form a dense, glowing nebula wave across the screen
+      if (Math.random() > 0.3) {
+        x = (Math.random() - 0.5) * 40;
+        // The wave follows a combination of sine and cosine for an organic curve
+        const waveCenter = Math.sin(x * 0.2) * 4 + Math.cos(x * 0.1) * 3;
+        // Add a tight vertical spread that thins out at the edges
+        const spread = (Math.random() - 0.5) * (Math.random() * 8);
+        y = waveCenter + spread;
+        z = (Math.random() - 0.5) * 10; // Keep the wave closer to the camera
+      }
       
       pos[i*3] = orig[i*3] = x;
       pos[i*3+1] = orig[i*3+1] = y;
@@ -80,9 +91,9 @@ const InteractiveStarField = ({ count = 3500 }) => {
   return (
     <Points ref={ref} positions={positions} stride={3}>
       <PointMaterial
-        transparent color="#4fc3f7" size={0.035}
+        transparent color="#4fc3f7" size={0.12}
         sizeAttenuation depthWrite={false}
-        blending={THREE.AdditiveBlending} opacity={0.6}
+        blending={THREE.AdditiveBlending} opacity={0.9}
       />
     </Points>
   );
