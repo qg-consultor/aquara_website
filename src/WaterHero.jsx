@@ -55,15 +55,31 @@ const PureWaterSplash = () => {
   // Load the customized 3D GLB model
   const { scene } = useGLTF('/water_splash.glb');
 
-  // Deeply clone and extract all meshes to avoid caching problems
-  const meshes = useMemo(() => {
-    const list = [];
-    scene.traverse((node) => {
+  // Deeply clone the scene to allow manual material modification
+  const clonedScene = useMemo(() => {
+    const clone = scene.clone();
+    clone.traverse((node) => {
       if (node.isMesh) {
-        list.push(node);
+        // Create the custom hyperrealistic water material
+        node.material = new THREE.MeshPhysicalMaterial({
+          transmission: 1.0,
+          thickness: 3.5,                 // Glass physical refraction thickness
+          roughness: 0.0,                 // Mirror smooth
+          ior: 1.333,                     // Water Refractive Index
+          chromaticAberration: 0.05,
+          anisotropy: 1.0,
+          color: new THREE.Color("#ffffff"),
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.0,
+          attenuationColor: new THREE.Color("#3b82f6"),
+          attenuationDistance: 1.8,
+          transparent: true,
+          opacity: 1.0,
+          side: THREE.DoubleSide
+        });
       }
     });
-    return list;
+    return clone;
   }, [scene]);
 
   useFrame((state, delta) => {
@@ -75,23 +91,24 @@ const PureWaterSplash = () => {
     pointerSpeed.current = Math.min(Math.sqrt(dx * dx + dy * dy) / Math.max(delta, 0.001), 10);
     lastPointer.current = { x: state.pointer.x, y: state.pointer.y };
 
-    // Constant premium organic floating rotation and posture
-    groupRef.current.rotation.y = 0.5 + state.clock.getElapsedTime() * 0.04;
-    groupRef.current.rotation.z = -0.15 + state.clock.getElapsedTime() * 0.015;
+    // Fluid float rotation
+    groupRef.current.rotation.y = 0.45 + state.clock.getElapsedTime() * 0.05;
+    groupRef.current.rotation.z = -0.1 + state.clock.getElapsedTime() * 0.015;
 
-    // Subtle scale pulsing on hover
-    const targetScale = hovered ? 1.05 : 1.0 + (pointerSpeed.current * 0.005);
-    easing.damp3(groupRef.current.scale, [targetScale, targetScale, targetScale], 0.5, delta);
+    // Much larger scale (2.6 - 2.8) to make the splash look majestically big and close
+    const baseScale = 2.6;
+    const targetScale = hovered ? baseScale * 1.08 : baseScale + (pointerSpeed.current * 0.012);
+    easing.damp3(groupRef.current.scale, [targetScale, targetScale, targetScale], 0.45, delta);
 
-    // Dynamic camera-follow coordinates layout
+    // Subtle cursor position follow (larger travel range factor / 18)
     const isMobile = state.viewport.width < 7.5;
     const centerOffset = isMobile ? 0 : state.viewport.width * 0.22;
     const verticalOffset = isMobile ? -state.viewport.height * 0.05 : 0.0;
 
-    const targetX = centerOffset + (state.pointer.x * state.viewport.width) / 28;
-    const targetY = verticalOffset + (state.pointer.y * state.viewport.height) / 28;
+    const targetX = centerOffset + (state.pointer.x * state.viewport.width) / 18;
+    const targetY = verticalOffset + (state.pointer.y * state.viewport.height) / 18;
     
-    easing.damp3(groupRef.current.position, [targetX, targetY, 0], 1.1, delta);
+    easing.damp3(groupRef.current.position, [targetX, targetY, 0], 0.8, delta);
   });
 
   return (
@@ -100,33 +117,7 @@ const PureWaterSplash = () => {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      {meshes.map((mesh, index) => (
-        <mesh 
-          key={index}
-          geometry={mesh.geometry}
-          position={mesh.position}
-          rotation={mesh.rotation}
-          scale={mesh.scale}
-        >
-          <MeshTransmissionMaterial
-            transmission={1.0}
-            thickness={3.8}                 // Thick, physical glass-like refraction edges
-            roughness={0.0}                 // Flawless glossy water look
-            ior={1.333}                     // Water refractive index
-            chromaticAberration={0.06}      // Prism dispersion highlights
-            anisotropy={1.2}                // Anisotropy for realistic light stretching
-            color="#ffffff"                 // Hyper-pure water base
-            distortion={0.18}               // Natural internal light refraction bending
-            distortionScale={0.35}
-            temporalDistortion={0.04}
-            clearcoat={1.0}
-            clearcoatRoughness={0.0}
-            attenuationColor="#1d4ed8"      // Deep rich zafiro cobalt shadows in core layers
-            attenuationDistance={1.35}      // High optical density matching photo shadows
-            backside={true}
-          />
-        </mesh>
-      ))}
+      <primitive object={clonedScene} />
     </group>
   );
 };
