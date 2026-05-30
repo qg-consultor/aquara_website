@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial } from '@react-three/drei';
+import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 
@@ -214,19 +214,23 @@ const LiquidBlob = () => {
           onPointerOut={() => setHovered(false)}
         >
           <MeshTransmissionMaterial
-            transmission={1}
-            ior={1.33}
-            thickness={1.5}
-            roughness={0.05}
-            chromaticAberration={0.03}
-            color="#e0f7fa"
-            backside
-            backsideThickness={0.3}
+            transmission={1.0}
+            thickness={1.6}
+            roughness={0.02}
+            ior={1.333}
+            chromaticAberration={0.08}
+            anisotropy={0.5}
+            color="#d5f4fc"
+            distortion={0.25}
+            distortionScale={0.4}
+            temporalDistortion={0.15}
+            clearcoat={1.0}
+            clearcoatRoughness={0.01}
+            attenuationColor="#ffffff"
+            attenuationDistance={2.0}
+            backside={true}
             samples={8}
             resolution={512}
-            clearcoat={1}
-            attenuationDistance={0.6}
-            attenuationColor="#4a9eff"
             toneMapped={true}
           />
         </mesh>
@@ -261,13 +265,40 @@ export default function WaterHeroComponent() {
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[8, 12, 6]} intensity={3.5} color="#cce7ff" />
-        <directionalLight position={[-6, -4, -4]} intensity={2.0} color="#1e40af" />
-        <pointLight position={[0, -2, 5]} intensity={1.5} color="#00f2fe" distance={10} />
+        <ambientLight intensity={0.2} color="#8abeff" />
+        <directionalLight position={[10, 8, 5]} intensity={3.5} color="#ffffff" />
+        <directionalLight position={[-8, -6, -4]} intensity={2.0} color="#1b4dff" />
+        <directionalLight position={[0, -10, 2]} intensity={1.5} color="#00d5ff" />
+        <pointLight position={[5, -5, 5]} intensity={2.0} color="#ffffff" />
 
         <Suspense fallback={null}>
-          <Environment preset="city" />
+          <Environment resolution={512}>
+            <color attach="background" args={['#050812']} />
+            <Lightformer 
+              form="rect" 
+              intensity={8} 
+              position={[4, 5, 2]} 
+              scale={[12, 6, 1]} 
+              target={[0, 0, 0]} 
+              color="#ffffff"
+            />
+            <Lightformer 
+              form="circle" 
+              intensity={6} 
+              position={[-5, 4, -3]} 
+              scale={[8, 8, 1]} 
+              target={[0, 0, 0]} 
+              color="#00f2fe"
+            />
+            <Lightformer 
+              form="rect" 
+              intensity={4} 
+              position={[0, -6, 4]} 
+              scale={[15, 3, 1]} 
+              target={[0, 0, 0]} 
+              color="#4facfe"
+            />
+          </Environment>
         </Suspense>
 
         <Suspense fallback={null}>
