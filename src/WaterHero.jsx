@@ -136,11 +136,11 @@ const LiquidBlob = () => {
     if (!mesh.current) return;
     const t = state.clock.elapsedTime;
     
-    easing.damp(pointerSmooth.current, 'x', pointer.x, 0.15, delta);
-    easing.damp(pointerSmooth.current, 'y', pointer.y, 0.15, delta);
+    easing.damp(pointerSmooth.current, 'x', pointer.x, 0.35, delta);
+    easing.damp(pointerSmooth.current, 'y', pointer.y, 0.35, delta);
 
-    const tgtAmp = hovered ? 0.35 : 0.2; 
-    const tgtSpd = hovered ? 1.5 : 1.0;
+    const tgtAmp = hovered ? 0.28 : 0.2; 
+    const tgtSpd = hovered ? 1.1 : 0.8;
     
     easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
     easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
