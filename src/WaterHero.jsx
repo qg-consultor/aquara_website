@@ -182,9 +182,9 @@ const LiquidBlob = () => {
       const dy = ny - pY;
       const distToPointer = Math.sqrt(dx * dx + dy * dy);
       
-      // Softer, wider radius (0.6) and smoother push (0.7) for fluidity
-      const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.6);
-      d += cursorInfluence * 0.7; 
+      // Increased radius (0.5 instead of 0.6) and stronger push (1.1 instead of 0.7)
+      const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.5);
+      d += cursorInfluence * 1.1; 
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
