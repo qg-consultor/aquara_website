@@ -125,13 +125,15 @@ const MiniDroplets = () => {
       {/* Bottom drip */}
       <mesh ref={mesh1} position={[0.2, -2.6, 0]}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <MeshTransmissionMaterial
+          <MeshTransmissionMaterial
           transmission={1.0}
           thickness={1.0}
-          roughness={0.05}
+          roughness={0.02}
           ior={1.333}
           chromaticAberration={0.05}
-          color="#d5f4fc"
+          color="#ffffff"
+          attenuationColor="#a6dfff"
+          attenuationDistance={1.0}
           clearcoat={1.0}
           samples={4}
           resolution={256}
@@ -144,10 +146,12 @@ const MiniDroplets = () => {
         <MeshTransmissionMaterial
           transmission={1.0}
           thickness={0.8}
-          roughness={0.05}
+          roughness={0.02}
           ior={1.333}
           chromaticAberration={0.05}
-          color="#d5f4fc"
+          color="#ffffff"
+          attenuationColor="#a6dfff"
+          attenuationDistance={1.0}
           clearcoat={1.0}
           samples={4}
           resolution={256}
@@ -284,14 +288,14 @@ const LiquidBlob = () => {
             ior={1.333}
             chromaticAberration={0.08}
             anisotropy={0.5}
-            color="#d5f4fc"
+            color="#ffffff"
+            attenuationColor="#a6dfff"
+            attenuationDistance={2.0}
             distortion={0.25}
             distortionScale={0.4}
             temporalDistortion={0.15}
             clearcoat={1.0}
             clearcoatRoughness={0.01}
-            attenuationColor="#ffffff"
-            attenuationDistance={2.0}
             backside={true}
             samples={8}
             resolution={512}
@@ -331,44 +335,47 @@ export default function WaterHeroComponent() {
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       >
-        <ambientLight intensity={0.2} color="#8abeff" />
-        <directionalLight position={[10, 8, 5]} intensity={3.5} color="#ffffff" />
-        <directionalLight position={[-8, -6, -4]} intensity={2.0} color="#1b4dff" />
-        <directionalLight position={[0, -10, 2]} intensity={1.5} color="#00d5ff" />
-        <pointLight position={[5, -5, 5]} intensity={2.0} color="#ffffff" />
+        <ambientLight intensity={0.4} color="#e0f0ff" />
+        {/* Main white key light */}
+        <directionalLight position={[5, 10, 8]} intensity={2.5} color="#ffffff" />
+        {/* Soft fill light */}
+        <directionalLight position={[-10, -5, 5]} intensity={1.0} color="#dcedff" />
+        {/* Strong backlight for glowing contour */}
+        <spotLight position={[0, 0, -8]} intensity={15} color="#ffffff" distance={20} penumbra={0.8} angle={Math.PI / 2} />
+        <pointLight position={[0, -5, 5]} intensity={1.0} color="#ffffff" />
 
         <Suspense fallback={null}>
           <Environment resolution={512}>
             <color attach="background" args={['#050812']} />
             
-            {/* Top Light for general specular highlight */}
+            {/* Top wide light for soft upper reflection */}
             <Lightformer 
               form="rect" 
-              intensity={8} 
-              position={[0, 5, 3]} 
-              scale={[10, 2, 1]} 
+              intensity={3} 
+              position={[0, 5, 0]} 
+              scale={[10, 10, 1]} 
               target={[0, 0, 0]} 
               color="#ffffff"
             />
             
-            {/* Side Light for blue cyan reflection */}
-            <Lightformer 
-              form="circle" 
-              intensity={5} 
-              position={[-4, 2, 2]} 
-              scale={[5, 5, 1]} 
-              target={[0, 0, 0]} 
-              color="#00f2fe"
-            />
-            
-            {/* Back rim light for volume definition */}
+            {/* Soft side reflection (window-like) */}
             <Lightformer 
               form="rect" 
               intensity={4} 
-              position={[5, -2, -5]} 
-              scale={[10, 10, 1]} 
+              position={[-5, 0, 2]} 
+              scale={[4, 10, 1]} 
               target={[0, 0, 0]} 
-              color="#1b4dff"
+              color="#e6f7ff"
+            />
+            
+            {/* Giant ring behind the sphere to create a glowing soft rim contour */}
+            <Lightformer 
+              form="ring" 
+              intensity={6} 
+              position={[0, 0, -5]} 
+              scale={[12, 12, 1]} 
+              target={[0, 0, 0]} 
+              color="#ffffff"
             />
           </Environment>
         </Suspense>
