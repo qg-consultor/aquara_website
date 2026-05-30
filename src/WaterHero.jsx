@@ -95,6 +95,68 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 
+// ── Mini Droplets (Dripping/Orbiting metaball effect) ──
+const MiniDroplets = () => {
+  const mesh1 = useRef();
+  const mesh2 = useRef();
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    
+    // Droplet 1: large drip at bottom, slowly stretching/moving
+    if (mesh1.current) {
+      mesh1.current.position.y = -2.6 + Math.sin(t * 1.5) * 0.1;
+      // Slight stretch effect
+      mesh1.current.scale.y = 1 + Math.sin(t * 1.5) * 0.1;
+      mesh1.current.scale.x = 1 - Math.sin(t * 1.5) * 0.05;
+      mesh1.current.scale.z = 1 - Math.sin(t * 1.5) * 0.05;
+    }
+
+    // Droplet 2: smaller, orbiting slightly around the side
+    if (mesh2.current) {
+      mesh2.current.position.x = 2.2 * Math.cos(t * 0.5);
+      mesh2.current.position.z = 2.2 * Math.sin(t * 0.5);
+      mesh2.current.position.y = -1.0 + Math.cos(t * 0.8) * 0.2;
+    }
+  });
+
+  return (
+    <>
+      {/* Bottom drip */}
+      <mesh ref={mesh1} position={[0.2, -2.6, 0]}>
+        <sphereGeometry args={[0.5, 32, 32]} />
+        <MeshTransmissionMaterial
+          transmission={1.0}
+          thickness={1.0}
+          roughness={0.05}
+          ior={1.333}
+          chromaticAberration={0.05}
+          color="#d5f4fc"
+          clearcoat={1.0}
+          samples={4}
+          resolution={256}
+        />
+      </mesh>
+
+      {/* Orbiting side droplet */}
+      <mesh ref={mesh2} position={[2.2, -1.0, 0]}>
+        <sphereGeometry args={[0.3, 32, 32]} />
+        <MeshTransmissionMaterial
+          transmission={1.0}
+          thickness={0.8}
+          roughness={0.05}
+          ior={1.333}
+          chromaticAberration={0.05}
+          color="#d5f4fc"
+          clearcoat={1.0}
+          samples={4}
+          resolution={256}
+        />
+      </mesh>
+    </>
+  );
+};
+
 // ── Liquid Blob — vertex distortion via Math.sin/cos, hover-reactive ──
 const LiquidBlob = () => {
   const mesh = useRef();
@@ -207,14 +269,14 @@ const LiquidBlob = () => {
   return (
     <>
       <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-        <mesh
-          ref={mesh}
-          geometry={geometry}
-          position={blobPosition}
-          scale={1.35}
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
-        >
+        <group position={blobPosition}>
+          <mesh
+            ref={mesh}
+            geometry={geometry}
+            scale={1.35}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
+          >
           <MeshTransmissionMaterial
             transmission={1.0}
             thickness={1.6}
@@ -235,7 +297,9 @@ const LiquidBlob = () => {
             resolution={512}
             toneMapped={true}
           />
-        </mesh>
+          </mesh>
+          <MiniDroplets />
+        </group>
       </Float>
       
       <Droplets active={hovered} blobPosition={blobPosition} count={15} />
@@ -277,40 +341,32 @@ export default function WaterHeroComponent() {
           <Environment resolution={512}>
             <color attach="background" args={['#050812']} />
             
-            {/* These two circular lightformers create the two bright specular highlights at the top left */}
+            {/* Top Light for general specular highlight */}
             <Lightformer 
-              form="circle" 
-              intensity={12} 
-              position={[2, 4, 3]} 
-              scale={[1.5, 1.5, 1]} 
-              target={[0, 0, 0]} 
-              color="#ffffff"
-            />
-            <Lightformer 
-              form="circle" 
-              intensity={10} 
-              position={[3.5, 4.5, 3]} 
-              scale={[1, 1, 1]} 
+              form="rect" 
+              intensity={8} 
+              position={[0, 5, 3]} 
+              scale={[10, 2, 1]} 
               target={[0, 0, 0]} 
               color="#ffffff"
             />
             
-            {/* This curved/wide lightformer creates the bright cyan caustic reflection at the bottom */}
+            {/* Side Light for blue cyan reflection */}
             <Lightformer 
-              form="rect" 
-              intensity={6} 
-              position={[0, -5, 2]} 
-              scale={[10, 2, 1]} 
+              form="circle" 
+              intensity={5} 
+              position={[-4, 2, 2]} 
+              scale={[5, 5, 1]} 
               target={[0, 0, 0]} 
               color="#00f2fe"
             />
-
-            {/* General ambient reflections to keep the water looking realistic */}
+            
+            {/* Back rim light for volume definition */}
             <Lightformer 
-              form="circle" 
-              intensity={3} 
-              position={[-5, 4, -3]} 
-              scale={[8, 8, 1]} 
+              form="rect" 
+              intensity={4} 
+              position={[5, -2, -5]} 
+              scale={[10, 10, 1]} 
               target={[0, 0, 0]} 
               color="#1b4dff"
             />
