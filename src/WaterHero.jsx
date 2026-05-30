@@ -74,7 +74,7 @@ class ImprovedNoise {
 const perlin = new ImprovedNoise();
 
 // Reusable animated fluid droplet component
-const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity, noiseSpeed, hoverPower, followSpeedFactor }) => {
+const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity, noiseSpeed, hoverPower, followSpeedFactor, isMainDroplet }) => {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
   const lastPointer = useRef({ x: 0, y: 0 });
@@ -99,13 +99,13 @@ const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity
     lastPointer.current = { x: state.pointer.x, y: state.pointer.y };
 
     // Fluid idle rotation
-    meshRef.current.rotation.y += delta * 0.06;
-    meshRef.current.rotation.z += delta * 0.02;
+    meshRef.current.rotation.y += delta * 0.04;
+    meshRef.current.rotation.z += delta * 0.015;
 
     // Soft cursor reactions
-    const targetIntensity = hovered ? noiseIntensity * hoverPower : noiseIntensity + (pointerSpeed.current * 0.01);
-    const targetSpeed = hovered ? noiseSpeed * 1.5 : noiseSpeed + (pointerSpeed.current * 0.02);
-    const targetScale = hovered ? 1.05 : 1.0;
+    const targetIntensity = hovered ? noiseIntensity * hoverPower : noiseIntensity + (pointerSpeed.current * 0.02);
+    const targetSpeed = hovered ? noiseSpeed * 1.4 : noiseSpeed + (pointerSpeed.current * 0.03);
+    const targetScale = hovered ? 1.06 : 1.0;
 
     easing.damp(stateValues.current, 'intensity', targetIntensity, 0.8, delta);
     easing.damp(stateValues.current, 'speed', targetSpeed, 0.9, delta);
@@ -119,13 +119,13 @@ const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity
     const centerOffset = isMobile ? 0 : state.viewport.width * 0.22;
     const verticalOffset = isMobile ? -state.viewport.height * 0.05 : 0;
 
-    // Smooth movement with lag, establishing natural liquid hierarchy (smaller drops lag less or more)
+    // Smooth movement with lag
     const targetX = centerOffset + initialPos[0] + (state.pointer.x * state.viewport.width) / followSpeedFactor;
     const targetY = verticalOffset + initialPos[1] + (state.pointer.y * state.viewport.height) / followSpeedFactor;
     
     easing.damp3(meshRef.current.position, [targetX, targetY, initialPos[2]], 1.1, delta);
 
-    // Vertex displacement calculations (Perlin liquid noise)
+    // Vertex displacement calculations (Perlin liquid noise + Asymmetric organic stretching)
     const time = state.clock.elapsedTime * stateValues.current.speed;
     const positions = geometry.attributes.position;
     const vertex = new THREE.Vector3();
@@ -134,13 +134,37 @@ const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity
       vertex.fromBufferAttribute(originalPositions, i);
       
       const nx = vertex.x * noiseScale + time;
-      const ny = vertex.y * noiseScale - time * 0.6;
-      const nz = vertex.z * noiseScale + time * 0.8;
+      const ny = vertex.y * noiseScale - time * 0.5;
+      const nz = vertex.z * noiseScale + time * 0.7;
 
-      let noiseVal = perlin.noise(nx, ny, nz) * 1.0;
-      noiseVal += perlin.noise(nx * 2.0, ny * 2.0, nz * 2.0) * 0.3;
+      // Layer 1: Large structural organic fluid deformation (slow)
+      let noiseVal = perlin.noise(nx * 0.7, ny * 0.7, nz * 0.7) * 1.2;
+      // Layer 2: Medium liquid ripples and waves
+      noiseVal += perlin.noise(nx * 1.8, ny * 1.8, nz * 1.8) * 0.55;
+      // Layer 3: High-frequency fluid folds for lighting reflection
+      noiseVal += perlin.noise(nx * 3.5, ny * 3.5, nz * 3.5) * 0.18;
+
+      let displacement = noiseVal * stateValues.current.intensity;
+
+      // ASYMMETRIC STRETCHING (To make the main body look like a free splash, not a round drop)
+      if (isMainDroplet) {
+        // Stretch diagonally upwards-left (mimicking the reference photo)
+        const stretchDir = new THREE.Vector3(-1.0, 1.2, -0.3).normalize();
+        const dotProduct = vertex.clone().normalize().dot(stretchDir);
+        
+        // If the vertex aligns with the stretch direction, pull it further out (asymmetric spike/jet)
+        if (dotProduct > 0.1) {
+          displacement += Math.pow(dotProduct, 1.8) * 0.95 * (1.0 + stateValues.current.intensity * 0.5);
+        }
+        
+        // Add a secondary lateral expansion (bulge) on the bottom-right
+        const bulgeDir = new THREE.Vector3(1.2, -1.0, 0.4).normalize();
+        const dotProductBulge = vertex.clone().normalize().dot(bulgeDir);
+        if (dotProductBulge > 0.2) {
+          displacement += Math.pow(dotProductBulge, 2.0) * 0.45;
+        }
+      }
       
-      const displacement = noiseVal * stateValues.current.intensity;
       vertex.normalize().multiplyScalar(radius + displacement);
       positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
@@ -158,19 +182,19 @@ const WaterDroplet = ({ radius, segments, initialPos, noiseScale, noiseIntensity
     >
       <MeshTransmissionMaterial
         transmission={1.0}
-        thickness={1.5}                 // Balanced thickness for natural water refraction
-        roughness={0.0}                 // Flawless glossy liquid surface
+        thickness={2.8}                 // Increased thickness for gorgeous optical depth
+        roughness={0.0}                 // Flawless glassy liquid surface
         ior={1.333}                     // Refractive Index of pure Water
-        chromaticAberration={0.03}      // Prism dispersion matching the reference photo
-        anisotropy={0.9}
+        chromaticAberration={0.05}      // Prism dispersion matching the reference photo
+        anisotropy={1.0}                // Max anisotropy to stretch highlight reflections along folds
         color="#ffffff"                 // Hyper-pure neutral transparent white water tint
-        distortion={0.12}
-        distortionScale={0.3}
-        temporalDistortion={0.04}
+        distortion={0.16}
+        distortionScale={0.35}
+        temporalDistortion={0.03}
         clearcoat={1.0}
         clearcoatRoughness={0.0}
         attenuationColor="#60a5fa"      // Soft sky-blue glow inside refraction folds
-        attenuationDistance={2.5}       // Generous depth that keeps the center clear and beautiful
+        attenuationDistance={2.4}       // Generous depth that keeps the center clear and beautiful
         backside={true}
       />
     </mesh>
@@ -186,20 +210,20 @@ export default function WaterHeroComponent() {
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         {/* Soft, zafiro blue ambient fill light to mimic the starry cosmic backdrop */}
-        <ambientLight intensity={0.6} color="#3b82f6" />
+        <ambientLight intensity={0.65} color="#3b82f6" />
         
         {/* Crisp cinematic direct lighting from the top-left to cast desaturating white edge reflections */}
-        <directionalLight position={[12, 12, 6]} intensity={5.5} color="#ffffff" />
-        <directionalLight position={[-12, -6, -4]} intensity={3.0} color="#1d4ed8" />
-        <directionalLight position={[0, -10, 2]} intensity={2.5} color="#60a5fa" />
-        <pointLight position={[8, -8, 8]} intensity={4.0} color="#ffffff" />
+        <directionalLight position={[12, 12, 6]} intensity={6.0} color="#ffffff" />
+        <directionalLight position={[-12, -6, -4]} intensity={3.5} color="#1d4ed8" />
+        <directionalLight position={[0, -10, 2]} intensity={2.8} color="#60a5fa" />
+        <pointLight position={[8, -8, 8]} intensity={4.5} color="#ffffff" />
 
-        {/* Dynamic Studio Environment reflections */}
+        {/* Dynamic Studio Environment reflections: We change the background to #0d2866 (Deep blue) instead of black so the glass is filled with zafiro sky-blue light! */}
         <Environment resolution={512}>
           <color attach="background" args={['#050d24']} />
           <Lightformer 
             form="rect" 
-            intensity={16} 
+            intensity={18}                  // Extremely bright highlights to highlight organic folds
             position={[6, 7, 2]} 
             scale={[20, 10, 1]} 
             target={[0, 0, 0]} 
@@ -207,7 +231,7 @@ export default function WaterHeroComponent() {
           />
           <Lightformer 
             form="circle" 
-            intensity={10} 
+            intensity={12} 
             position={[-8, 6, -3]} 
             scale={[16, 16, 1]} 
             target={[0, 0, 0]} 
@@ -215,7 +239,7 @@ export default function WaterHeroComponent() {
           />
           <Lightformer 
             form="rect" 
-            intensity={8} 
+            intensity={9} 
             position={[0, -9, 4]} 
             scale={[24, 4, 1]} 
             target={[0, 0, 0]} 
@@ -228,37 +252,40 @@ export default function WaterHeroComponent() {
           {/* Main big water body (organic aspherical deformation) */}
           <WaterDroplet 
             radius={2.1} 
-            segments={64} 
+            segments={80}                   // Increased segments for pristine smooth stretching spikes
             initialPos={[0, 0, 0]} 
-            noiseScale={0.5} 
-            noiseIntensity={0.14} 
-            noiseSpeed={0.5} 
-            hoverPower={2.0}
-            followSpeedFactor={28}
+            noiseScale={0.45} 
+            noiseIntensity={0.15} 
+            noiseSpeed={0.4} 
+            hoverPower={2.2}
+            followSpeedFactor={30}
+            isMainDroplet={true}
           />
           
           {/* Top-Right satellite droplet (mimics the reference photo) */}
           <WaterDroplet 
-            radius={0.45} 
+            radius={0.4} 
             segments={32} 
-            initialPos={[1.6, 2.0, -0.5]} 
+            initialPos={[2.0, 1.8, -0.6]} 
             noiseScale={0.8} 
             noiseIntensity={0.08} 
             noiseSpeed={0.9} 
             hoverPower={1.8}
-            followSpeedFactor={22} // Slightly faster reaction for tiny droplet inertia
+            followSpeedFactor={24} // Slightly faster reaction for tiny droplet inertia
+            isMainDroplet={false}
           />
 
           {/* Bottom-Left satellite droplet (adds fluid splash depth) */}
           <WaterDroplet 
-            radius={0.25} 
+            radius={0.2} 
             segments={32} 
-            initialPos={[-1.2, -1.8, 0.2]} 
+            initialPos={[-1.6, -1.8, 0.4]} 
             noiseScale={1.2} 
             noiseIntensity={0.06} 
             noiseSpeed={1.2} 
             hoverPower={1.5}
-            followSpeedFactor={24}
+            followSpeedFactor={26}
+            isMainDroplet={false}
           />
         </Float>
       </Canvas>
