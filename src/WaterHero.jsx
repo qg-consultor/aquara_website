@@ -34,7 +34,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
         
         const angle1 = Math.random() * Math.PI * 2;
         const angle2 = Math.random() * Math.PI;
-        const radius = 2.0; 
+        const radius = 2.6; // Increased to match larger sphere
         
         inactiveDroplet.offset.set(
           Math.sin(angle2) * Math.cos(angle1) * radius,
@@ -209,6 +209,7 @@ const LiquidBlob = () => {
           ref={mesh}
           geometry={geometry}
           position={blobPosition}
+          scale={1.35}
           onPointerOver={() => setHovered(true)}
           onPointerOut={() => setHovered(false)}
         >
@@ -265,8 +266,9 @@ export default function WaterHeroComponent() {
         <directionalLight position={[-6, -4, -4]} intensity={2.0} color="#1e40af" />
         <pointLight position={[0, -2, 5]} intensity={1.5} color="#00f2fe" distance={10} />
 
-        <Environment preset="city" />
-
+        <Suspense fallback={null}>
+          <Environment preset="city" />
+        </Suspense>
 
         <Suspense fallback={null}>
           <LiquidBlob />
