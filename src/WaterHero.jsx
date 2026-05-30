@@ -96,7 +96,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
-const MiniDroplets = () => {
+const MiniDroplets = ({ drop1Ref, drop2Ref }) => {
   const mesh1 = useRef();
   const mesh2 = useRef();
 
@@ -104,8 +104,8 @@ const MiniDroplets = () => {
     const t = state.clock.elapsedTime;
     
     // Droplet 1: large drip at bottom, slowly stretching/moving
-    if (mesh1.current) {
-      mesh1.current.position.y = -2.6 + Math.sin(t * 1.5) * 0.1;
+    if (mesh1.current && drop1Ref.current) {
+      mesh1.current.position.copy(drop1Ref.current);
       // Slight stretch effect
       mesh1.current.scale.y = 1 + Math.sin(t * 1.5) * 0.1;
       mesh1.current.scale.x = 1 - Math.sin(t * 1.5) * 0.05;
@@ -113,46 +113,46 @@ const MiniDroplets = () => {
     }
 
     // Droplet 2: smaller, orbiting slightly around the side
-    if (mesh2.current) {
-      mesh2.current.position.x = 2.2 * Math.cos(t * 0.5);
-      mesh2.current.position.z = 2.2 * Math.sin(t * 0.5);
-      mesh2.current.position.y = -1.0 + Math.cos(t * 0.8) * 0.2;
+    if (mesh2.current && drop2Ref.current) {
+      mesh2.current.position.copy(drop2Ref.current);
     }
   });
 
   return (
     <>
       {/* Bottom drip */}
-      <mesh ref={mesh1} position={[0.2, -2.6, 0]}>
+      <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
           <MeshTransmissionMaterial
           transmission={1.0}
           thickness={1.0}
-          roughness={0.02}
-          ior={1.333}
-          chromaticAberration={0.05}
+          roughness={0.05}
+          ior={1.2}
+          chromaticAberration={0.04}
           color="#ffffff"
           attenuationColor="#a6dfff"
-          attenuationDistance={1.0}
-          clearcoat={1.0}
+          attenuationDistance={1.5}
+          clearcoat={0.5}
+          clearcoatRoughness={0.2}
           samples={4}
           resolution={256}
         />
       </mesh>
 
       {/* Orbiting side droplet */}
-      <mesh ref={mesh2} position={[2.2, -1.0, 0]}>
+      <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
         <MeshTransmissionMaterial
           transmission={1.0}
           thickness={0.8}
-          roughness={0.02}
-          ior={1.333}
-          chromaticAberration={0.05}
+          roughness={0.05}
+          ior={1.2}
+          chromaticAberration={0.04}
           color="#ffffff"
           attenuationColor="#a6dfff"
-          attenuationDistance={1.0}
-          clearcoat={1.0}
+          attenuationDistance={1.5}
+          clearcoat={0.5}
+          clearcoatRoughness={0.2}
           samples={4}
           resolution={256}
         />
@@ -169,6 +169,10 @@ const LiquidBlob = () => {
   const speedRef = useRef(1.0); // Moderate speed
   const pointerSmooth = useRef(new THREE.Vector2(0,0));
   
+  // Dynamic refs for the mini droplets positions
+  const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
+  const drop2Ref = useRef(new THREE.Vector3(3.6, -1.5, 0));
+
   const { viewport, pointer } = useThree();
 
   const geometry = useMemo(() => {
@@ -213,6 +217,12 @@ const LiquidBlob = () => {
     easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
     easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
 
+    // Update droplet positions globally
+    drop1Ref.current.y = -3.8 + Math.sin(t * 1.5) * 0.2;
+    drop2Ref.current.x = 3.6 * Math.cos(t * 0.5);
+    drop2Ref.current.z = 3.6 * Math.sin(t * 0.5);
+    drop2Ref.current.y = -1.5 + Math.cos(t * 0.8) * 0.3;
+
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
     
@@ -232,6 +242,16 @@ const LiquidBlob = () => {
     const pX = pointerSmooth.current.x * 3.5; 
     const pY = pointerSmooth.current.y * 3.5;
 
+    // Droplet positions in local mesh space (scaled by 1.35)
+    const localScale = 1.35;
+    const d1x = drop1Ref.current.x / localScale;
+    const d1y = drop1Ref.current.y / localScale;
+    const d1z = drop1Ref.current.z / localScale;
+
+    const d2x = drop2Ref.current.x / localScale;
+    const d2y = drop2Ref.current.y / localScale;
+    const d2z = drop2Ref.current.z / localScale;
+
     let ix = 0;
     for (let i = 0; i < count; i++) {
       const iy = ix + 1, iz = ix + 2;
@@ -250,9 +270,21 @@ const LiquidBlob = () => {
       const dy = ny - pY;
       const distToPointer = Math.sqrt(dx * dx + dy * dy);
       
-      // Increased radius (0.5 instead of 0.6) and stronger push (1.1 instead of 0.7)
       const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.5);
       d += cursorInfluence * 1.1; 
+
+      // Metaball effect: pull vertices towards droplets
+      const bx = nx * len;
+      const by = ny * len;
+      const bz = nz * len;
+
+      const dist1 = Math.sqrt((bx - d1x)**2 + (by - d1y)**2 + (bz - d1z)**2);
+      const pull1 = Math.exp(-dist1 * dist1 * 2.0) * 1.8;
+      d += pull1;
+
+      const dist2 = Math.sqrt((bx - d2x)**2 + (by - d2y)**2 + (bz - d2z)**2);
+      const pull2 = Math.exp(-dist2 * dist2 * 2.5) * 1.5;
+      d += pull2;
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
@@ -283,26 +315,26 @@ const LiquidBlob = () => {
           >
           <MeshTransmissionMaterial
             transmission={1.0}
-            thickness={1.6}
-            roughness={0.02}
-            ior={1.333}
-            chromaticAberration={0.08}
-            anisotropy={0.5}
+            thickness={1.5}
+            roughness={0.06}
+            ior={1.2}
+            chromaticAberration={0.05}
+            anisotropy={0.1}
             color="#ffffff"
             attenuationColor="#a6dfff"
-            attenuationDistance={2.0}
-            distortion={0.25}
-            distortionScale={0.4}
-            temporalDistortion={0.15}
-            clearcoat={1.0}
-            clearcoatRoughness={0.01}
+            attenuationDistance={3.0}
+            distortion={0.2}
+            distortionScale={0.3}
+            temporalDistortion={0.1}
+            clearcoat={0.4}
+            clearcoatRoughness={0.2}
             backside={true}
             samples={8}
             resolution={512}
             toneMapped={true}
           />
           </mesh>
-          <MiniDroplets />
+          <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} />
         </group>
       </Float>
       
@@ -337,11 +369,11 @@ export default function WaterHeroComponent() {
       >
         <ambientLight intensity={0.4} color="#e0f0ff" />
         {/* Main white key light */}
-        <directionalLight position={[5, 10, 8]} intensity={2.5} color="#ffffff" />
+        <directionalLight position={[5, 10, 8]} intensity={2.0} color="#ffffff" />
         {/* Soft fill light */}
         <directionalLight position={[-10, -5, 5]} intensity={1.0} color="#dcedff" />
-        {/* Strong backlight for glowing contour */}
-        <spotLight position={[0, 0, -8]} intensity={15} color="#ffffff" distance={20} penumbra={0.8} angle={Math.PI / 2} />
+        {/* Strong backlight for glowing contour - reduced intensity and wider angle for softer screen-like blend */}
+        <spotLight position={[0, 0, -8]} intensity={6} color="#ffffff" distance={25} penumbra={1.0} angle={Math.PI / 1.5} />
         <pointLight position={[0, -5, 5]} intensity={1.0} color="#ffffff" />
 
         <Suspense fallback={null}>
@@ -368,10 +400,10 @@ export default function WaterHeroComponent() {
               color="#e6f7ff"
             />
             
-            {/* Giant ring behind the sphere to create a glowing soft rim contour */}
+            {/* Giant ring behind the sphere to create a glowing soft rim contour - reduced intensity */}
             <Lightformer 
               form="ring" 
-              intensity={6} 
+              intensity={2.5} 
               position={[0, 0, -5]} 
               scale={[12, 12, 1]} 
               target={[0, 0, 0]} 
