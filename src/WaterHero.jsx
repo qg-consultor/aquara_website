@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { easing } from 'maath';
 
 // ── Water Droplets Emitted on Hover ──
-const Droplets = ({ count = 25, active, blobPosition }) => {
+const Droplets = ({ count = 15, blobPosition }) => {
   const meshRef = useRef();
   
   const dropletsData = useRef(
@@ -14,18 +14,19 @@ const Droplets = ({ count = 25, active, blobPosition }) => {
       maxLife: Math.random() * 1.5 + 0.5,
       velocity: new THREE.Vector3(),
       offset: new THREE.Vector3(),
-      active: false
+      active: false,
+      baseScale: Math.random() * 1.5 + 0.8
     }))
   );
 
-  const geometry = useMemo(() => new THREE.SphereGeometry(0.06, 16, 16), []);
+  const geometry = useMemo(() => new THREE.SphereGeometry(0.08, 16, 16), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
     
-    // Activate new droplets if hovering
-    if (active && Math.random() > 0.6) {
+    // Always emit slowly but randomly
+    if (Math.random() > 0.92) {
       const inactiveDroplet = dropletsData.current.find(d => !d.active);
       if (inactiveDroplet) {
         inactiveDroplet.active = true;
@@ -43,6 +44,7 @@ const Droplets = ({ count = 25, active, blobPosition }) => {
         
         inactiveDroplet.velocity.copy(inactiveDroplet.offset).normalize().multiplyScalar(1.5 + Math.random() * 1.5);
         inactiveDroplet.velocity.y += 1.0; // Upward boost
+        inactiveDroplet.baseScale = Math.random() * 1.5 + 0.8;
       }
     }
 
@@ -58,7 +60,7 @@ const Droplets = ({ count = 25, active, blobPosition }) => {
           data.offset.addScaledVector(data.velocity, delta);
           
           dummy.position.copy(blobPosition).add(data.offset);
-          const scale = Math.max(0, 1 - (data.life / data.maxLife));
+          const scale = Math.max(0, 1 - (data.life / data.maxLife)) * data.baseScale;
           dummy.scale.setScalar(scale);
         }
       } else {
@@ -94,10 +96,8 @@ const Droplets = ({ count = 25, active, blobPosition }) => {
 // ── Liquid Blob — vertex distortion via Math.sin/cos, hover-reactive ──
 const LiquidBlob = () => {
   const mesh = useRef();
-  const [hovered, setHovered] = useState(false);
-  const amplitudeRef = useRef(0.12);
-  const speedRef = useRef(0.6);
-  const hoverFactorRef = useRef(0);
+  const amplitudeRef = useRef(0.2); // Increased base amplitude
+  const speedRef = useRef(1.0); // Moderate speed
   const pointerSmooth = useRef(new THREE.Vector2(0,0));
   
   const { viewport, pointer } = useThree();
@@ -138,18 +138,8 @@ const LiquidBlob = () => {
     easing.damp(pointerSmooth.current, 'x', pointer.x, 0.15, delta);
     easing.damp(pointerSmooth.current, 'y', pointer.y, 0.15, delta);
 
-    const tgtAmp = hovered ? 0.25 : 0.12; 
-    const tgtSpd = hovered ? 1.5 : 0.6;
-    const tgtHover = hovered ? 1 : 0;
-    
-    // Increased dampening times for a much smoother, luxurious transition
-    easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
-    easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
-    easing.damp(hoverFactorRef, 'current', tgtHover, 0.7, delta);
-
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
-    const hoverFactor = hoverFactorRef.current;
     
     const pos = mesh.current.geometry.attributes.position.array;
     const norms = mesh.current.geometry.userData.normals;
@@ -163,12 +153,9 @@ const LiquidBlob = () => {
     const ts4 = t * speed * 0.6;
     const ts5 = t * speed * 0.9;
     
-    // Precalculate hover projection variables if active
-    let pX = 0, pY = 0;
-    if (hoverFactor > 0.01) {
-      pX = pointerSmooth.current.x * 2.5;
-      pY = pointerSmooth.current.y * 2.5;
-    }
+    // Scale pointer coordinate space to match blob interaction radius
+    const pX = pointerSmooth.current.x * 3.5; 
+    const pY = pointerSmooth.current.y * 3.5;
 
     let ix = 0;
     for (let i = 0; i < count; i++) {
@@ -183,14 +170,14 @@ const LiquidBlob = () => {
         Math.sin((nx + ny) * 4.0 + ts4) * 0.15 +
         Math.cos((ny + nz) * 2.5 - ts5) * 0.1;
         
-      if (hoverFactor > 0.01) {
-         const dx = nx - pX;
-         const dy = ny - pY;
-         const distToPointer = Math.sqrt(dx * dx + dy * dy);
-         
-         const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.7) * hoverFactor;
-         d += cursorInfluence * 0.5; 
-      }
+      // Continuously react to the pointer position globally
+      const dx = nx - pX;
+      const dy = ny - pY;
+      const distToPointer = Math.sqrt(dx * dx + dy * dy);
+      
+      // Much more sensitive radius (0.45 instead of 0.7) and stronger push (0.9 instead of 0.5)
+      const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.45);
+      d += cursorInfluence * 0.9; 
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
@@ -203,8 +190,8 @@ const LiquidBlob = () => {
     mesh.current.geometry.attributes.position.needsUpdate = true;
     mesh.current.geometry.computeVertexNormals();
 
-    mesh.current.rotation.y = t * 0.04 + pointerSmooth.current.x * (0.15 + hoverFactor * 0.1);
-    mesh.current.rotation.x = pointerSmooth.current.y * -(0.15 + hoverFactor * 0.1);
+    mesh.current.rotation.y = t * 0.04 + pointerSmooth.current.x * 0.25;
+    mesh.current.rotation.x = pointerSmooth.current.y * -0.25;
     mesh.current.rotation.z = Math.sin(t * 0.03) * 0.03;
   });
 
@@ -215,8 +202,6 @@ const LiquidBlob = () => {
           ref={mesh}
           geometry={geometry}
           position={blobPosition}
-          onPointerOver={() => setHovered(true)}
-          onPointerOut={() => setHovered(false)}
         >
           <MeshTransmissionMaterial
             transmission={1}
@@ -237,7 +222,7 @@ const LiquidBlob = () => {
         </mesh>
       </Float>
       
-      <Droplets active={hovered} blobPosition={blobPosition} count={25} />
+      <Droplets blobPosition={blobPosition} count={15} />
     </>
   );
 };
