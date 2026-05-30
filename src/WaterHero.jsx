@@ -93,6 +93,8 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 };
 
 
+
+
 // ── Liquid Blob — vertex distortion via Math.sin/cos, hover-reactive ──
 const LiquidBlob = () => {
   const mesh = useRef();
@@ -274,29 +276,43 @@ export default function WaterHeroComponent() {
         <Suspense fallback={null}>
           <Environment resolution={512}>
             <color attach="background" args={['#050812']} />
+            
+            {/* These two circular lightformers create the two bright specular highlights at the top left */}
             <Lightformer 
-              form="rect" 
-              intensity={8} 
-              position={[4, 5, 2]} 
-              scale={[12, 6, 1]} 
+              form="circle" 
+              intensity={12} 
+              position={[2, 4, 3]} 
+              scale={[1.5, 1.5, 1]} 
               target={[0, 0, 0]} 
               color="#ffffff"
             />
             <Lightformer 
               form="circle" 
+              intensity={10} 
+              position={[3.5, 4.5, 3]} 
+              scale={[1, 1, 1]} 
+              target={[0, 0, 0]} 
+              color="#ffffff"
+            />
+            
+            {/* This curved/wide lightformer creates the bright cyan caustic reflection at the bottom */}
+            <Lightformer 
+              form="rect" 
               intensity={6} 
-              position={[-5, 4, -3]} 
-              scale={[8, 8, 1]} 
+              position={[0, -5, 2]} 
+              scale={[10, 2, 1]} 
               target={[0, 0, 0]} 
               color="#00f2fe"
             />
+
+            {/* General ambient reflections to keep the water looking realistic */}
             <Lightformer 
-              form="rect" 
-              intensity={4} 
-              position={[0, -6, 4]} 
-              scale={[15, 3, 1]} 
+              form="circle" 
+              intensity={3} 
+              position={[-5, 4, -3]} 
+              scale={[8, 8, 1]} 
               target={[0, 0, 0]} 
-              color="#4facfe"
+              color="#1b4dff"
             />
           </Environment>
         </Suspense>
