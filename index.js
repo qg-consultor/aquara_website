@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ENTER EXPERIENCE OVERLAY ---
     const enterOverlay = document.getElementById('enter-overlay');
     const enterBtn = document.getElementById('enter-btn');
+    const enterLoader = document.getElementById('enter-loader');
+    
+    // Fake loading delay to show loader then reveal button
+    setTimeout(() => {
+        if (enterLoader) enterLoader.classList.add('hide');
+        if (enterBtn) enterBtn.classList.add('show');
+    }, 2000); // 2 second loading animation
     
     // --- HOVER SOUND EFFECT (Global to this scope so it can be unlocked) ---
     const hoverSound = new Audio(waterSoundPath);
