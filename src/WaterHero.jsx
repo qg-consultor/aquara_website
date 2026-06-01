@@ -74,22 +74,20 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
-      <TransmissionSampler>
-        <MeshTransmissionMaterial
-          transmission={1}
-          ior={1.02}
-          thickness={1.5}
-          roughness={0.05}
-          chromaticAberration={0.03}
-          color="#e0f7fa"
-          samples={8}
-          resolution={256}
-          clearcoat={1}
-          attenuationDistance={0.6}
-          attenuationColor="#4a9eff"
-          toneMapped={true}
-        />
-      </TransmissionSampler>
+      <MeshTransmissionMaterial
+        transmission={1}
+        ior={1.33}
+        thickness={1.5}
+        roughness={0.05}
+        chromaticAberration={0.03}
+        color="#e0f7fa"
+        samples={8}
+        resolution={256}
+        clearcoat={1}
+        attenuationDistance={0.6}
+        attenuationColor="#4a9eff"
+        toneMapped={true}
+      />
     </instancedMesh>
   );
 };
@@ -100,9 +98,10 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 const miniDropletMaterialProps = {
   transmission: 1.0,
   roughness: 0.05,
-  ior: 1.02,
+  ior: 1.2,
   chromaticAberration: 0.04,
-  color: "#ffffff",
+  color: "#021a4a",
+  emissive: "#000000",
   attenuationColor: "#a6dfff",
   attenuationDistance: 1.5,
   clearcoat: 0.5,
@@ -116,30 +115,49 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
   const mesh1 = useRef();
   const mesh2 = useRef();
   const mesh3 = useRef();
+  const mat1 = useRef();
+  const mat2 = useRef();
+  const mat3 = useRef();
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     
+    // Helper to dynamically update droplet color based on distance from center
+    const updateDropletColor = (meshRef, matRef) => {
+      if (meshRef.current && matRef.current) {
+        const dist = meshRef.current.position.length();
+        const isOverBlob = dist < 2.0;
+        
+        // Target colors: Bright cyan/white when over blob, dark navy when over background
+        const targetColor = isOverBlob ? new THREE.Color("#ffffff") : new THREE.Color("#021a4a");
+        const targetEmissive = isOverBlob ? new THREE.Color("#1a6eff") : new THREE.Color("#000000");
+        
+        matRef.current.color.lerp(targetColor, 0.1);
+        matRef.current.emissive.lerp(targetEmissive, 0.1);
+      }
+    };
+
     // Droplet 1: large drip at bottom, slowly stretching/moving
     if (mesh1.current && drop1Ref.current) {
       mesh1.current.position.copy(drop1Ref.current);
-      // Slight stretch effect
       mesh1.current.scale.y = 1 + Math.sin(t * 1.5) * 0.1;
       mesh1.current.scale.x = 1 - Math.sin(t * 1.5) * 0.05;
       mesh1.current.scale.z = 1 - Math.sin(t * 1.5) * 0.05;
+      updateDropletColor(mesh1, mat1);
     }
 
     // Droplet 2: smaller, orbiting slightly around the side
     if (mesh2.current && drop2Ref.current) {
       mesh2.current.position.copy(drop2Ref.current);
+      updateDropletColor(mesh2, mat2);
     }
     
     // Droplet 3: Emerging from the top
     if (mesh3.current && drop3Ref.current) {
       mesh3.current.position.copy(drop3Ref.current);
-      // Make it pulse slightly as it emerges
       const scale3 = 1 + Math.sin(t * 2.0) * 0.05;
       mesh3.current.scale.setScalar(scale3);
+      updateDropletColor(mesh3, mat3);
     }
   });
 
@@ -148,25 +166,19 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Bottom drip */}
       <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <TransmissionSampler>
-          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
-        </TransmissionSampler>
+        <MeshTransmissionMaterial ref={mat1} {...miniDropletMaterialProps} thickness={1.0} />
       </mesh>
 
       {/* Orbiting side droplet */}
       <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <TransmissionSampler>
-          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
-        </TransmissionSampler>
+        <MeshTransmissionMaterial ref={mat2} {...miniDropletMaterialProps} thickness={0.8} />
       </mesh>
       
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <TransmissionSampler>
-          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
-        </TransmissionSampler>
+        <MeshTransmissionMaterial ref={mat3} {...miniDropletMaterialProps} thickness={0.9} />
       </mesh>
     </>
   );
