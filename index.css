@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Inter:wght@400;600;700;800&family=Oswald:wght@400&display=swap');
-@import url("https://fonts.bunny.net/css?family=jura:300,500,700,800");
+@import url("https://fonts.bunny.net/css?family=jura:300,500,600,700,800");
 
 /* --- DESIGN SYSTEM TOKENS --- */
 :root {
@@ -189,7 +189,7 @@ p {
     padding: 0.8rem 2rem;
     border-radius: 100px;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -300,7 +300,7 @@ p {
     padding: 1.1rem 2.8rem;
     border-radius: 100px;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
