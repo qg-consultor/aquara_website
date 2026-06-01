@@ -19,24 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NAVIGATION DOT ANIMATION ---
-    const dot = document.querySelector('.navMenu .dot');
-    if (navMenu && dot) {
-        const links = navMenu.querySelectorAll('a');
-        links.forEach(link => {
-            link.addEventListener('mouseenter', (e) => {
-                const rect = e.target.getBoundingClientRect();
-                const parentRect = navMenu.getBoundingClientRect();
-                dot.style.opacity = '1';
-                // Center dot horizontally under the text
-                dot.style.transform = `translateX(${rect.left - parentRect.left + (rect.width / 2) - 3}px)`; 
-            });
-        });
-        navMenu.addEventListener('mouseleave', () => {
-            dot.style.opacity = '0';
-        });
-    }
-
     // --- NAVBAR SCROLL EFFECT ---
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', () => {

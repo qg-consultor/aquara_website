@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
+@import url("https://fonts.bunny.net/css?family=jura:300,500");
 
 /* --- DESIGN SYSTEM TOKENS --- */
 :root {
@@ -127,42 +128,59 @@ p {
 }
 
 .navMenu {
-    display: flex;
-    gap: 2.5rem;
-    position: relative;
-    align-items: center;
+  position: relative;
+  display: flex;
+  gap: 20px;
+  --rgb: 0 242 254; 
+  font-family: "Jura", sans-serif;
 }
 
 .navMenu a {
-    text-decoration: none;
-    color: var(--text-secondary);
-    font-weight: 500;
-    transition: var(--transition-smooth);
-    font-size: 0.85rem;
-    padding: 0.5rem 0;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    position: relative;
-    z-index: 2;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-weight: 500;
+  display: inline-block;
+  width: 100px;
+  text-align: center;
+  transition: color 0.2s ease-in-out, text-shadow 300ms ease-in;
+  white-space: nowrap; /* Prevent wrapping since width is strictly 100px */
 }
 
-.navMenu a.active, .navMenu a:hover {
-    color: var(--text-primary);
+/* Efecto Hover: Cambio a Cyan y Expansión de Sombras */
+.navMenu a:hover,
+.navMenu a:focus-visible {
+  color: #00f2fe;
+  outline: none;
+  text-shadow:
+    0  2ex rgb(var(--rgb) / 0.35),
+    0 -2ex rgb(var(--rgb) / 0.35),
+    0  4ex rgb(var(--rgb) / 0.15),
+    0 -4ex rgb(var(--rgb) / 0.15),
+    0  6ex rgb(var(--rgb) / 0.075),
+    0 -6ex rgb(var(--rgb) / 0.075);
 }
 
+/* El Punto Deslizante */
 .navMenu .dot {
-    width: 6px;
-    height: 6px;
-    background: var(--primary);
-    border-radius: 50%;
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    opacity: 0;
-    box-shadow: 0 0 10px var(--primary-glow);
-    z-index: 1;
+  width: 8px;
+  height: 8px;
+  background: #00f2fe;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -15px;
+  left: 0;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  pointer-events: none; 
 }
+
+/* Lógica de Posicionamiento del Punto */
+.navMenu a:nth-child(1):hover ~ .dot { transform: translateX(46px); opacity: 1; }
+.navMenu a:nth-child(2):hover ~ .dot { transform: translateX(166px); opacity: 1; }
+.navMenu a:nth-child(3):hover ~ .dot { transform: translateX(286px); opacity: 1; }
+.navMenu a:nth-child(4):hover ~ .dot { transform: translateX(406px); opacity: 1; }
 
 .nav-btn {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
