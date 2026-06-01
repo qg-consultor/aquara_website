@@ -78,4 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         });
     }
+    // --- HOVER SOUND EFFECT ---
+    const hoverSound = new Audio('./SECCIONES/HERO/water_sound_effect.mp3');
+    hoverSound.volume = 0.4; // Slightly lower volume for subtle UI feedback
+
+    const menuLinks = document.querySelectorAll('.navMenu a');
+    menuLinks.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            // Reset to 0 to allow rapid re-playing
+            hoverSound.currentTime = 0;
+            hoverSound.play().catch(e => {
+                // Browsers block autoplay until user interaction, so we catch the error silently
+                console.log('Audio play prevented by browser policy until interaction');
+            });
+        });
+    });
 });
