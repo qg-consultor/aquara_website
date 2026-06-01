@@ -87,6 +87,8 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
         attenuationDistance={0.6}
         attenuationColor="#4a9eff"
         toneMapped={true}
+        transparent={true}
+        blending={THREE.AdditiveBlending}
       />
     </instancedMesh>
   );
@@ -106,7 +108,9 @@ const miniDropletMaterialProps = {
   clearcoat: 0.5,
   clearcoatRoughness: 0.2,
   samples: 4,
-  resolution: 256
+  resolution: 256,
+  transparent: true,
+  blending: THREE.AdditiveBlending
 };
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
