@@ -465,17 +465,18 @@ p {
 .enter-btn {
     margin-top: 1rem;
     font-family: "Jura", sans-serif;
-    background: transparent;
-    border: 1px solid rgba(0, 242, 254, 0.3);
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #030712;
     padding: 1rem 2.5rem;
     border-radius: 100px;
+    border: none;
     font-size: 1rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     cursor: pointer;
-    transition: all 0.5s ease;
+    box-shadow: 0 10px 25px -5px var(--primary-glow);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Initially hidden for loading effect */
     opacity: 0;
@@ -490,7 +491,6 @@ p {
 }
 
 .enter-btn:hover {
-    background: rgba(0, 242, 254, 0.1);
-    border-color: rgba(0, 242, 254, 0.8);
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -4px var(--primary-glow);
 }
