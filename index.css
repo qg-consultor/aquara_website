@@ -284,7 +284,7 @@ p {
 .hero-description {
     font-size: clamp(0.95rem, 1.2vw, 1.15rem);
     line-height: 1.6;
-    max-width: 650px;
+    max-width: 800px;
     color: var(--text-secondary);
 }
 
