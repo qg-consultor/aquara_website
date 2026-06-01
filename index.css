@@ -405,3 +405,67 @@ p {
         padding: 0 1.5rem;
     }
 }
+
+/* --- ENTER EXPERIENCE OVERLAY --- */
+.enter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #050812;
+    display: grid;
+    place-items: center;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.enter-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.enter-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.enter-title {
+    font-family: "Inter", sans-serif;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.1em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.enter-subtitle {
+    font-family: "Jura", sans-serif;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin: 0;
+    letter-spacing: 0.05em;
+}
+
+.enter-btn {
+    margin-top: 2rem;
+    font-family: "Jura", sans-serif;
+    background: transparent;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    color: var(--text-primary);
+    padding: 1rem 2.5rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.enter-btn:hover {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: rgba(0, 242, 254, 0.8);
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+}

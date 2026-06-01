@@ -1,6 +1,32 @@
 import waterSoundPath from './SECCIONES/HERO/water_sound_effect.mp3';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- ENTER EXPERIENCE OVERLAY ---
+    const enterOverlay = document.getElementById('enter-overlay');
+    const enterBtn = document.getElementById('enter-btn');
+    
+    // --- HOVER SOUND EFFECT (Global to this scope so it can be unlocked) ---
+    const hoverSound = new Audio(waterSoundPath);
+    hoverSound.volume = 0.4;
+
+    if (enterBtn && enterOverlay) {
+        enterBtn.addEventListener('click', () => {
+            // Unlock audio on trusted click event
+            hoverSound.play().then(() => {
+                hoverSound.pause();
+                hoverSound.currentTime = 0;
+            }).catch(e => console.log('Silent audio unlock error:', e));
+
+            // Fade out overlay
+            enterOverlay.classList.add('fade-out');
+            
+            // Remove from DOM after transition
+            setTimeout(() => {
+                enterOverlay.remove();
+            }, 1200);
+        });
+    }
+
     // --- MOBILE MENU TOGGLE ---
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.querySelector('.navMenu');
@@ -80,10 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         });
     }
-    // --- HOVER SOUND EFFECT ---
-    const hoverSound = new Audio(waterSoundPath);
-    hoverSound.volume = 0.4; // Slightly lower volume for subtle UI feedback
-
     const menuLinks = document.querySelectorAll('.navMenu a');
     menuLinks.forEach(link => {
         link.addEventListener('mouseenter', () => {
