@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer, useTexture } from '@react-three/drei';
+import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer, useTexture, TransmissionSampler } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 
@@ -74,20 +74,22 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
-      <MeshTransmissionMaterial
-        transmission={1}
-        ior={1.02}
-        thickness={1.5}
-        roughness={0.05}
-        chromaticAberration={0.03}
-        color="#e0f7fa"
-        samples={8}
-        resolution={256}
-        clearcoat={1}
-        attenuationDistance={0.6}
-        attenuationColor="#4a9eff"
-        toneMapped={true}
-      />
+      <TransmissionSampler>
+        <MeshTransmissionMaterial
+          transmission={1}
+          ior={1.33}
+          thickness={1.5}
+          roughness={0.05}
+          chromaticAberration={0.03}
+          color="#e0f7fa"
+          samples={8}
+          resolution={256}
+          clearcoat={1}
+          attenuationDistance={0.6}
+          attenuationColor="#4a9eff"
+          toneMapped={true}
+        />
+      </TransmissionSampler>
     </instancedMesh>
   );
 };
@@ -98,7 +100,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 const miniDropletMaterialProps = {
   transmission: 1.0,
   roughness: 0.05,
-  ior: 1.02,
+  ior: 1.2,
   chromaticAberration: 0.04,
   color: "#ffffff",
   attenuationColor: "#a6dfff",
@@ -146,19 +148,25 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Bottom drip */}
       <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
+        <TransmissionSampler>
+          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
+        </TransmissionSampler>
       </mesh>
 
       {/* Orbiting side droplet */}
       <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
+        <TransmissionSampler>
+          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
+        </TransmissionSampler>
       </mesh>
       
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
+        <TransmissionSampler>
+          <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
+        </TransmissionSampler>
       </mesh>
     </>
   );
