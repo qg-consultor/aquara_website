@@ -76,7 +76,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
       <MeshTransmissionMaterial
         transmission={1}
-        ior={1.33}
+        ior={1.02}
         thickness={1.5}
         roughness={0.05}
         chromaticAberration={0.03}
@@ -87,7 +87,6 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
         attenuationDistance={0.6}
         attenuationColor="#4a9eff"
         toneMapped={true}
-        backside={true}
       />
     </instancedMesh>
   );
@@ -99,7 +98,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 const miniDropletMaterialProps = {
   transmission: 1.0,
   roughness: 0.05,
-  ior: 1.2,
+  ior: 1.02,
   chromaticAberration: 0.04,
   color: "#ffffff",
   attenuationColor: "#a6dfff",
@@ -107,8 +106,7 @@ const miniDropletMaterialProps = {
   clearcoat: 0.5,
   clearcoatRoughness: 0.2,
   samples: 4,
-  resolution: 256,
-  backside: true
+  resolution: 256
 };
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
