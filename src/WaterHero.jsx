@@ -166,24 +166,27 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
 
 // ── Water Overlay Background Shader ──
 const WaterOverlay = () => {
-  const { viewport } = useThree();
+  const { size, camera } = useThree();
+  const viewport = useThree((state) => state.viewport.getCurrentViewport(state.camera, new THREE.Vector3(0, 0, -10)));
   const texture = useTexture('https://img.pikbest.com/wp/202408/swimming-pool-water-background-high-resolution-wave-abstract-captivating-textures-in-a_9904458.jpg!sw800');
   texture.wrapS = texture.wrapT = THREE.MirroredRepeatWrapping;
 
   const uniforms = useMemo(() => ({
-    uTime: { value: 0 },
-    uTexture: { value: texture },
-  }), [texture]);
+    time: { value: 0 },
+    resolution: { value: new THREE.Vector2(size.width, size.height) },
+    texture1: { value: texture },
+  }), [texture, size]);
 
   useFrame((state) => {
-    uniforms.uTime.value = state.clock.elapsedTime;
+    uniforms.time.value = state.clock.elapsedTime * 1.2; // Equivalent to time += 0.02 at 60fps
+    uniforms.resolution.value.set(state.size.width, state.size.height);
   });
 
   return (
-    <mesh position={[0, 0, -10]} scale={[viewport.width * 2.5, viewport.height * 2.5, 1]} renderOrder={-1}>
+    <mesh position={[0, 0, -10]} scale={[viewport.width * 1.1, viewport.height * 1.1, 1]} renderOrder={-1}>
       <planeGeometry args={[1, 1, 64, 64]} />
       <shaderMaterial
-        transparent={true}
+        transparent={false}
         depthWrite={false}
         blending={THREE.NormalBlending}
         uniforms={uniforms}
@@ -195,22 +198,29 @@ const WaterOverlay = () => {
           }
         `}
         fragmentShader={`
-          uniform sampler2D uTexture;
-          uniform float uTime;
+          uniform float time;
+          uniform vec2 resolution;
+          uniform sampler2D texture1;
           varying vec2 vUv;
-          void main() {
-            vec2 uv = vUv;
-            // Distortion (freq: 15.0, amp: 0.015)
-            uv.x += sin(uv.y * 15.0 + uTime) * 0.015;
-            uv.y += cos(uv.x * 15.0 + uTime) * 0.015;
+          
+          void main() {  
+            vec2 uv1 = vUv;
             
-            vec4 texColor = texture2D(uTexture, uv);
+            float frequency = 15.0;
+            float amplitude = 0.015;
             
-            // Color multiplication: vec3(0.02, 0.03, 0.07) * 4.0
-            vec3 bgColor = vec3(0.02, 0.03, 0.07);
-            vec3 finalColor = texColor.rgb * bgColor * 4.0;
+            float x = uv1.y * frequency + time * 0.7; 
+            float y = uv1.x * frequency + time * 0.3;
             
-            gl_FragColor = vec4(finalColor, 0.8);
+            uv1.x += cos(x + y) * amplitude * cos(y);
+            uv1.y += sin(x - y) * amplitude * cos(y);
+
+            vec4 texColor = texture2D(texture1, uv1);
+            
+            vec3 targetColor = vec3(0.02, 0.03, 0.07);
+            vec3 finalColor = texColor.rgb * targetColor * 4.0;
+            
+            gl_FragColor = vec4(finalColor, 1.0);
           }
         `}
       />
