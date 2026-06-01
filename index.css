@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Inter:wght@600;700;800&display=swap');
 @import url("https://fonts.bunny.net/css?family=jura:300,500,700,800");
 
 /* --- DESIGN SYSTEM TOKENS --- */
@@ -264,9 +264,12 @@ p {
 }
 
 .hero h1 {
+    font-family: 'Inter', sans-serif;
     font-size: clamp(3rem, 5.5vw, 5.5rem);
-    text-transform: uppercase;
+    font-weight: 800;
     color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
 }
 
 .hero-subtitle {
