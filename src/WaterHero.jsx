@@ -75,14 +75,13 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
       <meshPhysicalMaterial
-        transmission={1}
-        ior={1.33}
-        thickness={1.5}
+        color="#ffffff"
+        metalness={0.9}
         roughness={0.05}
-        color="#e0f7fa"
-        clearcoat={1}
-        attenuationDistance={0.6}
-        attenuationColor="#4a9eff"
+        transparent={true}
+        opacity={0.4}
+        clearcoat={1.0}
+        clearcoatRoughness={0.1}
       />
     </instancedMesh>
   );
@@ -92,14 +91,13 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 const miniDropletMaterialProps = {
-  transmission: 1.0,
-  roughness: 0.05,
-  ior: 1.2,
   color: "#ffffff",
-  attenuationColor: "#a6dfff",
-  attenuationDistance: 1.5,
-  clearcoat: 0.5,
-  clearcoatRoughness: 0.2,
+  metalness: 0.9,
+  roughness: 0.05,
+  transparent: true,
+  opacity: 0.4,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.1,
 };
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
@@ -139,19 +137,19 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Bottom drip */}
       <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} thickness={1.0} />
+        <meshPhysicalMaterial {...miniDropletMaterialProps} />
       </mesh>
 
       {/* Orbiting side droplet */}
       <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} thickness={0.8} />
+        <meshPhysicalMaterial {...miniDropletMaterialProps} />
       </mesh>
       
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} thickness={0.9} />
+        <meshPhysicalMaterial {...miniDropletMaterialProps} />
       </mesh>
     </>
   );
