@@ -1,3 +1,5 @@
+import waterSoundPath from './SECCIONES/HERO/water_sound_effect.mp3';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- MOBILE MENU TOGGLE ---
     const menuToggle = document.getElementById('menu-toggle');
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     // --- HOVER SOUND EFFECT ---
-    const hoverSound = new Audio('./SECCIONES/HERO/water_sound_effect.mp3');
+    const hoverSound = new Audio(waterSoundPath);
     hoverSound.volume = 0.4; // Slightly lower volume for subtle UI feedback
 
     const menuLinks = document.querySelectorAll('.navMenu a');
@@ -88,8 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reset to 0 to allow rapid re-playing
             hoverSound.currentTime = 0;
             hoverSound.play().catch(e => {
-                // Browsers block autoplay until user interaction, so we catch the error silently
-                console.log('Audio play prevented by browser policy until interaction');
+                console.error('Audio play error:', e);
             });
         });
     });
