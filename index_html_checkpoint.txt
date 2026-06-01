@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquara - Purificación de Agua Inteligente y Bienestar Premium</title>
+    <meta name="description" content="Experimenta el agua en su forma más pura con Aquara. Sistemas inteligentes de optimización mineral y purificación de agua premium para tu hogar.">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- FLOATING NAVBAR -->
+    <nav class="navbar glass">
+        <a href="#" class="logo" id="nav-logo">
+            <svg viewBox="0 0 24 24">
+                <path d="M12,20C8.69,20 6,17.31 6,14C6,10 12,3.25 12,3.25C12,3.25 18,10 18,14C18,17.31 15.31,20 12,20Z"/>
+            </svg>
+            <span>AQUARA</span>
+        </a>
+        
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#" class="active">Inicio</a></li>
+        </ul>
+
+        <a href="mailto:info@aquara.com" class="nav-btn" id="nav-cta-btn">Reservar Ahora</a>
+    </nav>
+
+    <!-- INMERSIVE HERO SECTION -->
+    <header class="hero" id="inicio">
+        <!-- Interactive 3D WebGL Canvas Layer -->
+        <div id="hero-canvas" class="hero-canvas-container"></div>
+        <div class="hero-overlay"></div>
+        
+        <div class="hero-container container">
+            <div class="hero-text-side">
+                <span class="badge">Pureza Redefinida</span>
+                <h1>LA PUREZA<br><span class="gradient-text">REDEFINIDA</span></h1>
+                <p class="hero-subtitle">Pura Innovación</p>
+                <p class="hero-description">Experimenta un cuerpo de agua vivo, hiperrealista y en constante movimiento que responde al tacto de tu presencia. Ingeniería hídrica y arte digital combinados para redefinir el lujo natural en tu hogar.</p>
+                <div class="cta-group">
+                    <a href="mailto:info@aquara.com" class="btn-primary" id="hero-primary-btn">Explorar Aquara Home</a>
+                </div>
+            </div>
+            <div class="hero-interactive-zone">
+                <!-- Visual balance space. Canvas fills the background and aligns its interaction zone here -->
+                <div class="interaction-hint">
+                    <span class="hint-dot"></span> Mueve tu cursor para interactuar con el agua
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script type="module" src="index.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
