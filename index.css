@@ -283,12 +283,13 @@ p {
 }
 
 .hero-description {
-    font-family: 'Andale Mono', monospace;
+    font-family: 'Jura', sans-serif;
     font-size: clamp(1.2rem, 1.5vw, 1.4rem);
     line-height: 1.6;
     max-width: 800px;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text-secondary);
+    margin-bottom: 1.5rem;
 }
 
 .btn-primary {
