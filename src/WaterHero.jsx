@@ -75,7 +75,9 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
       <MeshTransmissionMaterial
-        transmission={1}
+        transmission={0.15}
+        transparent={true}
+        opacity={0.8}
         ior={1.33}
         thickness={1.5}
         roughness={0.05}
@@ -96,7 +98,9 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 const miniDropletMaterialProps = {
-  transmission: 1.0,
+  transmission: 0.15,
+  transparent: true,
+  opacity: 0.8,
   roughness: 0.05,
   ior: 1.2,
   chromaticAberration: 0.04,
