@@ -74,14 +74,19 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
-      <meshPhysicalMaterial
-        color="#ffffff"
-        metalness={0.9}
+      <MeshTransmissionMaterial
+        transmission={1}
+        ior={1.33}
+        thickness={1.5}
         roughness={0.05}
-        transparent={true}
-        opacity={0.4}
-        clearcoat={1.0}
-        clearcoatRoughness={0.1}
+        chromaticAberration={0.03}
+        color="#e0f7fa"
+        samples={8}
+        resolution={256}
+        clearcoat={1}
+        attenuationDistance={0.6}
+        attenuationColor="#4a9eff"
+        toneMapped={true}
       />
     </instancedMesh>
   );
@@ -91,13 +96,17 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 const miniDropletMaterialProps = {
-  color: "#ffffff",
-  metalness: 0.9,
+  transmission: 1.0,
   roughness: 0.05,
-  transparent: true,
-  opacity: 0.4,
-  clearcoat: 1.0,
-  clearcoatRoughness: 0.1,
+  ior: 1.2,
+  chromaticAberration: 0.04,
+  color: "#ffffff",
+  attenuationColor: "#a6dfff",
+  attenuationDistance: 1.5,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.2,
+  samples: 4,
+  resolution: 256
 };
 
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
@@ -137,19 +146,19 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Bottom drip */}
       <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
       </mesh>
 
       {/* Orbiting side droplet */}
       <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
       </mesh>
       
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <meshPhysicalMaterial {...miniDropletMaterialProps} />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
       </mesh>
     </>
   );
