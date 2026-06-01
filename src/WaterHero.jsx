@@ -80,12 +80,12 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
         thickness={1.5}
         roughness={0.05}
         chromaticAberration={0.03}
-        color="#e0f7fa"
+        color="#051336"
         samples={8}
         resolution={256}
         clearcoat={1}
         attenuationDistance={0.6}
-        attenuationColor="#4a9eff"
+        attenuationColor="#00f2fe"
         toneMapped={true}
       />
     </instancedMesh>
@@ -100,8 +100,8 @@ const miniDropletMaterialProps = {
   roughness: 0.05,
   ior: 1.2,
   chromaticAberration: 0.04,
-  color: "#ffffff",
-  attenuationColor: "#a6dfff",
+  color: "#051336",
+  attenuationColor: "#00f2fe",
   attenuationDistance: 1.5,
   clearcoat: 0.5,
   clearcoatRoughness: 0.2,
@@ -401,8 +401,8 @@ const LiquidBlob = () => {
             ior={1.2}
             chromaticAberration={0.05}
             anisotropy={0.1}
-            color="#ffffff"
-            attenuationColor="#a6dfff"
+            color="#051336"
+            attenuationColor="#00f2fe"
             attenuationDistance={3.0}
             distortion={0.2}
             distortionScale={0.3}
