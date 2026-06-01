@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer } from '@react-three/drei';
+import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 
@@ -161,6 +161,60 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
         <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
       </mesh>
     </>
+  );
+};
+
+// ── Water Overlay Background Shader ──
+const WaterOverlay = () => {
+  const { viewport } = useThree();
+  const texture = useTexture('https://img.pikbest.com/wp/202408/swimming-pool-water-background-high-resolution-wave-abstract-captivating-textures-in-a_9904458.jpg!sw800');
+  texture.wrapS = texture.wrapT = THREE.MirroredRepeatWrapping;
+
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+    uTexture: { value: texture },
+  }), [texture]);
+
+  useFrame((state) => {
+    uniforms.uTime.value = state.clock.elapsedTime;
+  });
+
+  return (
+    <mesh position={[0, 0, -10]} scale={[viewport.width * 2.5, viewport.height * 2.5, 1]} renderOrder={-1}>
+      <planeGeometry args={[1, 1, 64, 64]} />
+      <shaderMaterial
+        transparent={true}
+        depthWrite={false}
+        blending={THREE.NormalBlending}
+        uniforms={uniforms}
+        vertexShader={`
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform sampler2D uTexture;
+          uniform float uTime;
+          varying vec2 vUv;
+          void main() {
+            vec2 uv = vUv;
+            // Distortion (freq: 15.0, amp: 0.015)
+            uv.x += sin(uv.y * 15.0 + uTime) * 0.015;
+            uv.y += cos(uv.x * 15.0 + uTime) * 0.015;
+            
+            vec4 texColor = texture2D(uTexture, uv);
+            
+            // Color multiplication: vec3(0.02, 0.03, 0.07) * 4.0
+            vec3 bgColor = vec3(0.02, 0.03, 0.07);
+            vec3 finalColor = texColor.rgb * bgColor * 4.0;
+            
+            gl_FragColor = vec4(finalColor, 0.8);
+          }
+        `}
+      />
+    </mesh>
   );
 };
 
@@ -418,6 +472,7 @@ export default function WaterHeroComponent() {
         </Suspense>
 
         <Suspense fallback={null}>
+          <WaterOverlay />
           <LiquidBlob />
         </Suspense>
       </Canvas>

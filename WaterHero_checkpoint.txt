@@ -95,6 +95,20 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 
 
+const miniDropletMaterialProps = {
+  transmission: 1.0,
+  roughness: 0.05,
+  ior: 1.2,
+  chromaticAberration: 0.04,
+  color: "#ffffff",
+  attenuationColor: "#a6dfff",
+  attenuationDistance: 1.5,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.2,
+  samples: 4,
+  resolution: 256
+};
+
 // ── Mini Droplets (Dripping/Orbiting metaball effect) ──
 const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
   const mesh1 = useRef();
@@ -132,58 +146,19 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Bottom drip */}
       <mesh ref={mesh1}>
         <sphereGeometry args={[0.5, 32, 32]} />
-          <MeshTransmissionMaterial
-          transmission={1.0}
-          thickness={1.0}
-          roughness={0.05}
-          ior={1.2}
-          chromaticAberration={0.04}
-          color="#ffffff"
-          attenuationColor="#a6dfff"
-          attenuationDistance={1.5}
-          clearcoat={0.5}
-          clearcoatRoughness={0.2}
-          samples={4}
-          resolution={256}
-        />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
       </mesh>
 
       {/* Orbiting side droplet */}
       <mesh ref={mesh2}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <MeshTransmissionMaterial
-          transmission={1.0}
-          thickness={0.8}
-          roughness={0.05}
-          ior={1.2}
-          chromaticAberration={0.04}
-          color="#ffffff"
-          attenuationColor="#a6dfff"
-          attenuationDistance={1.5}
-          clearcoat={0.5}
-          clearcoatRoughness={0.2}
-          samples={4}
-          resolution={256}
-        />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
       </mesh>
       
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <MeshTransmissionMaterial
-          transmission={1.0}
-          thickness={0.9}
-          roughness={0.05}
-          ior={1.2}
-          chromaticAberration={0.04}
-          color="#ffffff"
-          attenuationColor="#a6dfff"
-          attenuationDistance={1.5}
-          clearcoat={0.5}
-          clearcoatRoughness={0.2}
-          samples={4}
-          resolution={256}
-        />
+        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
       </mesh>
     </>
   );
@@ -311,20 +286,21 @@ const LiquidBlob = () => {
       d += cursorInfluence * 1.1; 
 
       // Metaball effect: pull vertices towards droplets
+      // OPTIMIZATION: Math.sqrt() removed to save CPU. We use squared distances directly.
       const bx = nx * len;
       const by = ny * len;
       const bz = nz * len;
 
-      const dist1 = Math.sqrt((bx - d1x)**2 + (by - d1y)**2 + (bz - d1z)**2);
-      const pull1 = Math.exp(-dist1 * dist1 * 2.0) * 1.8;
+      const distSq1 = (bx - d1x)*(bx - d1x) + (by - d1y)*(by - d1y) + (bz - d1z)*(bz - d1z);
+      const pull1 = Math.exp(-distSq1 * 2.0) * 1.8;
       d += pull1;
 
-      const dist2 = Math.sqrt((bx - d2x)**2 + (by - d2y)**2 + (bz - d2z)**2);
-      const pull2 = Math.exp(-dist2 * dist2 * 2.5) * 1.5;
+      const distSq2 = (bx - d2x)*(bx - d2x) + (by - d2y)*(by - d2y) + (bz - d2z)*(bz - d2z);
+      const pull2 = Math.exp(-distSq2 * 2.5) * 1.5;
       d += pull2;
       
-      const dist3 = Math.sqrt((bx - d3x)**2 + (by - d3y)**2 + (bz - d3z)**2);
-      const pull3 = Math.exp(-dist3 * dist3 * 2.5) * 1.6;
+      const distSq3 = (bx - d3x)*(bx - d3x) + (by - d3y)*(by - d3y) + (bz - d3z)*(bz - d3z);
+      const pull3 = Math.exp(-distSq3 * 2.5) * 1.6;
       d += pull3;
 
       const r = len + d * amplitude;
