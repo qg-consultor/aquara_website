@@ -413,6 +413,7 @@ const LiquidBlob = () => {
             samples={8}
             resolution={512}
             toneMapped={true}
+            transparent={false}
           />
           </mesh>
           <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} />
