@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Inter:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Inter:wght@600;700;800&family=Oswald:wght@400&display=swap');
 @import url("https://fonts.bunny.net/css?family=jura:300,500,700,800");
 
 /* --- DESIGN SYSTEM TOKENS --- */
@@ -283,9 +283,11 @@ p {
 }
 
 .hero-description {
+    font-family: 'Oswald', sans-serif;
     font-size: clamp(0.95rem, 1.2vw, 1.15rem);
     line-height: 1.6;
     max-width: 800px;
+    font-weight: 400;
     color: var(--text-secondary);
 }
 
