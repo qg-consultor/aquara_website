@@ -411,7 +411,9 @@ p {
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #050812;
+    background: rgba(3, 7, 18, 0.65);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
     display: grid;
     place-items: center;
     transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s cubic-bezier(0.16, 1, 0.3, 1);
