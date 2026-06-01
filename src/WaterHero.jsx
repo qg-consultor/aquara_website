@@ -75,18 +75,10 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
   return (
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
       <MeshTransmissionMaterial
-        transmission={1}
-        ior={1.33}
-        thickness={1.5}
-        roughness={0.05}
-        chromaticAberration={0.03}
-        color="#e0f7fa"
-        samples={8}
-        resolution={256}
-        clearcoat={1}
-        attenuationDistance={0.6}
-        attenuationColor="#4a9eff"
-        toneMapped={true}
+        {...miniDropletMaterialProps}
+        color="#0a1930"
+        attenuationColor="#021a4a"
+        thickness={0.5}
       />
     </instancedMesh>
   );
