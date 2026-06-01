@@ -138,11 +138,11 @@ p {
 .navMenu a {
   color: #ffffff;
   text-decoration: none;
-  font-size: 1.2em;
+  font-size: 1.05em;
   text-transform: uppercase;
   font-weight: 500;
   display: inline-block;
-  width: 100px;
+  width: 150px;
   text-align: center;
   transition: color 0.2s ease-in-out, text-shadow 300ms ease-in;
   white-space: nowrap; /* Prevent wrapping since width is strictly 100px */
@@ -176,11 +176,11 @@ p {
   pointer-events: none; 
 }
 
-/* Lógica de Posicionamiento del Punto */
-.navMenu a:nth-child(1):hover ~ .dot { transform: translateX(46px); opacity: 1; }
-.navMenu a:nth-child(2):hover ~ .dot { transform: translateX(166px); opacity: 1; }
-.navMenu a:nth-child(3):hover ~ .dot { transform: translateX(286px); opacity: 1; }
-.navMenu a:nth-child(4):hover ~ .dot { transform: translateX(406px); opacity: 1; }
+/* Lógica de Posicionamiento del Punto (Calculada para ancho 150px + gap 20px) */
+.navMenu a:nth-child(1):hover ~ .dot { transform: translateX(71px); opacity: 1; }
+.navMenu a:nth-child(2):hover ~ .dot { transform: translateX(241px); opacity: 1; }
+.navMenu a:nth-child(3):hover ~ .dot { transform: translateX(411px); opacity: 1; }
+.navMenu a:nth-child(4):hover ~ .dot { transform: translateX(581px); opacity: 1; }
 
 .nav-btn {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
