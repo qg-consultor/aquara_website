@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer, useTexture } from '@react-three/drei';
+import { MeshTransmissionMaterial, Environment, Float, Points, PointMaterial, Lightformer, useTexture, useFBO } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 
@@ -101,56 +101,141 @@ const miniDropletMaterialProps = {
   resolution: 256
 };
 
-// ── Mini Droplets (Dripping/Orbiting metaball effect) ──
+// ── Lens shader — lives at module level (created once, never re-allocated) ──
+const LENS_VERT = `
+  varying vec3 vNormal;
+  varying vec3 vViewPosition;
+  void main() {
+    vNormal = normalize(normalMatrix * normal);
+    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+    vViewPosition = -mvPos.xyz;
+    gl_Position = projectionMatrix * mvPos;
+  }
+`;
+
+const LENS_FRAG = `
+  uniform sampler2D uBackground;
+  uniform vec2      uResolution;
+  uniform float     uIOR;
+  varying vec3 vNormal;
+  varying vec3 vViewPosition;
+
+  void main() {
+    // Current fragment's screen-space UV
+    vec2 screenUV = gl_FragCoord.xy / uResolution;
+
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(vViewPosition);
+
+    // Snell's law refraction  (air n=1 -> water glass n=uIOR)
+    float eta = 1.0 / uIOR;
+    vec3  R   = refract(-V, N, eta);
+
+    // R.xy projected onto screen = lens distortion offset
+    vec2 lensUV = clamp(screenUV + R.xy * 0.18, 0.001, 0.999);
+    vec4 bg     = texture2D(uBackground, lensUV);
+
+    // Fresnel rim (bright edge like a real water droplet)
+    float NdotV  = max(dot(N, V), 0.0);
+    float fresnel = pow(1.0 - NdotV, 4.0);
+
+    // Water-blue tint for transmitted light
+    vec3 tint      = vec3(0.78, 0.91, 1.0);
+    vec3 transmitted = bg.rgb * tint;
+
+    // Bright white-blue rim
+    vec3 finalColor = mix(transmitted, vec3(0.85, 0.95, 1.0), fresnel * 0.70);
+
+    // Sharp specular highlight (top-left key light)
+    vec3 lightDir = normalize(vec3(0.5, 1.0, 0.8));
+    float spec    = pow(max(dot(reflect(-V, N), lightDir), 0.0), 48.0);
+    finalColor   += spec * 0.60;
+
+    gl_FragColor = vec4(finalColor, 0.88 + fresnel * 0.12);
+  }
+`;
+
+// ── Mini Droplets — Screen-Space Lens Refraction ──
+// Each frame the scene is rendered into an FBO (without the droplets themselves),
+// then the droplets draw using that texture + a Snell's-law lens shader.
+// Result: dark over dark background, magnified blob colours when hovering the blob.
 const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
   const mesh1 = useRef();
   const mesh2 = useRef();
   const mesh3 = useRef();
+  const { size } = useThree();
 
+  // Render target that captures the scene without the mini droplets
+  const fbo = useFBO(512, 512, { stencilBuffer: false });
+
+  // Shared uniforms — updated every frame, shared across all three meshes
+  const lensUniforms = useMemo(() => ({
+    uBackground: { value: null },
+    uResolution:  { value: new THREE.Vector2(size.width, size.height) },
+    uIOR:         { value: 1.55 },
+  }), []);
+
+  // One material instance, shared by all three spheres (efficient)
+  const lensMaterial = useMemo(() => new THREE.ShaderMaterial({
+    uniforms:       lensUniforms,
+    vertexShader:   LENS_VERT,
+    fragmentShader: LENS_FRAG,
+    transparent:    true,
+  }), [lensUniforms]);
+
+  // Priority -1: runs BEFORE R3F's automatic render at priority 0
   useFrame((state) => {
+    const { gl, scene, camera } = state;
     const t = state.clock.elapsedTime;
 
-    // Droplet 1: large drip at bottom, slowly stretching/moving
+    // ── Position updates ──
     if (mesh1.current && drop1Ref.current) {
       mesh1.current.position.copy(drop1Ref.current);
-      // Slight stretch effect
       mesh1.current.scale.y = 1 + Math.sin(t * 1.5) * 0.1;
       mesh1.current.scale.x = 1 - Math.sin(t * 1.5) * 0.05;
       mesh1.current.scale.z = 1 - Math.sin(t * 1.5) * 0.05;
     }
-
-    // Droplet 2: smaller, orbiting slightly around the side
     if (mesh2.current && drop2Ref.current) {
       mesh2.current.position.copy(drop2Ref.current);
     }
-
-    // Droplet 3: Emerging from the top
     if (mesh3.current && drop3Ref.current) {
       mesh3.current.position.copy(drop3Ref.current);
-      // Make it pulse slightly as it emerges
-      const scale3 = 1 + Math.sin(t * 2.0) * 0.05;
-      mesh3.current.scale.setScalar(scale3);
+      mesh3.current.scale.setScalar(1 + Math.sin(t * 2.0) * 0.05);
     }
-  });
+
+    // ── FBO capture: hide droplets → render scene → restore ──
+    if (mesh1.current) mesh1.current.visible = false;
+    if (mesh2.current) mesh2.current.visible = false;
+    if (mesh3.current) mesh3.current.visible = false;
+
+    gl.setRenderTarget(fbo);
+    gl.render(scene, camera);
+    gl.setRenderTarget(null);
+
+    if (mesh1.current) mesh1.current.visible = true;
+    if (mesh2.current) mesh2.current.visible = true;
+    if (mesh3.current) mesh3.current.visible = true;
+
+    // Push FBO texture and current resolution to shader
+    lensUniforms.uBackground.value = fbo.texture;
+    lensUniforms.uResolution.value.set(state.size.width, state.size.height);
+  }, -1);
 
   return (
     <>
       {/* Bottom drip */}
-      <mesh ref={mesh1}>
+      <mesh ref={mesh1} material={lensMaterial}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={1.0} />
       </mesh>
 
       {/* Orbiting side droplet */}
-      <mesh ref={mesh2}>
+      <mesh ref={mesh2} material={lensMaterial}>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
       </mesh>
 
       {/* Top emerging droplet */}
-      <mesh ref={mesh3}>
+      <mesh ref={mesh3} material={lensMaterial}>
         <sphereGeometry args={[0.4, 32, 32]} />
-        <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.9} />
       </mesh>
     </>
   );
