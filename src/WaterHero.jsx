@@ -7,7 +7,7 @@ import { easing } from 'maath';
 // ── Water Droplets Emitted on Hover ──
 const Droplets = ({ count = 15, active, blobPosition }) => {
   const meshRef = useRef();
-  
+
   const dropletsData = useRef(
     Array.from({ length: count }, () => ({
       life: 0,
@@ -24,24 +24,24 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
-    
+
     // Always emit slowly but randomly when hovered
     if (active && Math.random() > 0.92) {
       const inactiveDroplet = dropletsData.current.find(d => !d.active);
       if (inactiveDroplet) {
         inactiveDroplet.active = true;
         inactiveDroplet.life = 0;
-        
+
         const angle1 = Math.random() * Math.PI * 2;
         const angle2 = Math.random() * Math.PI;
         const radius = 2.6; // Increased to match larger sphere
-        
+
         inactiveDroplet.offset.set(
           Math.sin(angle2) * Math.cos(angle1) * radius,
           Math.cos(angle2) * radius,
           Math.sin(angle2) * Math.sin(angle1) * radius
         );
-        
+
         inactiveDroplet.velocity.copy(inactiveDroplet.offset).normalize().multiplyScalar(1.5 + Math.random() * 1.5);
         inactiveDroplet.velocity.y += 1.0; // Upward boost
         inactiveDroplet.baseScale = Math.random() * 1.5 + 0.8;
@@ -58,7 +58,7 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
         } else {
           data.velocity.y -= delta * 2.5; // Gravity
           data.offset.addScaledVector(data.velocity, delta);
-          
+
           dummy.position.copy(blobPosition).add(data.offset);
           const scale = Math.max(0, 1 - (data.life / data.maxLife)) * data.baseScale;
           dummy.scale.setScalar(scale);
@@ -109,7 +109,7 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    
+
     // Droplet 1: large drip at bottom, slowly stretching/moving
     if (mesh1.current && drop1Ref.current) {
       mesh1.current.position.copy(drop1Ref.current);
@@ -123,7 +123,7 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
     if (mesh2.current && drop2Ref.current) {
       mesh2.current.position.copy(drop2Ref.current);
     }
-    
+
     // Droplet 3: Emerging from the top
     if (mesh3.current && drop3Ref.current) {
       mesh3.current.position.copy(drop3Ref.current);
@@ -146,7 +146,7 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
         <sphereGeometry args={[0.3, 32, 32]} />
         <MeshTransmissionMaterial {...miniDropletMaterialProps} thickness={0.8} />
       </mesh>
-      
+
       {/* Top emerging droplet */}
       <mesh ref={mesh3}>
         <sphereGeometry args={[0.4, 32, 32]} />
@@ -209,8 +209,8 @@ const WaterOverlay = () => {
 
             vec4 texColor = texture2D(texture1, uv1);
             
-            vec3 targetColor = vec3(0.02, 0.03, 0.07);
-            vec3 finalColor = texColor.rgb * targetColor * 4.0;
+            vec3 targetColor = vec3(0.05, 0.08, 0.18);
+            vec3 finalColor = texColor.rgb * targetColor * 4.5;
             
             gl_FragColor = vec4(finalColor, 1.0);
           }
@@ -226,8 +226,8 @@ const LiquidBlob = () => {
   const [hovered, setHovered] = useState(false);
   const amplitudeRef = useRef(0.2); // Increased base amplitude
   const speedRef = useRef(1.0); // Moderate speed
-  const pointerSmooth = useRef(new THREE.Vector2(0,0));
-  
+  const pointerSmooth = useRef(new THREE.Vector2(0, 0));
+
   // Dynamic refs for the mini droplets positions
   const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
   const drop2Ref = useRef(new THREE.Vector3(3.6, -1.5, 0));
@@ -241,7 +241,7 @@ const LiquidBlob = () => {
     const count = orig.length / 3;
     const norms = new Float32Array(count * 3);
     const lengths = new Float32Array(count);
-    
+
     let ix = 0;
     for (let i = 0; i < count; i++) {
       const iy = ix + 1, iz = ix + 2;
@@ -253,7 +253,7 @@ const LiquidBlob = () => {
       norms[iz] = oz / len;
       ix += 3;
     }
-    
+
     g.userData.orig = orig.slice();
     g.userData.normals = norms;
     g.userData.lengths = lengths;
@@ -267,13 +267,13 @@ const LiquidBlob = () => {
   useFrame((state, delta) => {
     if (!mesh.current) return;
     const t = state.clock.elapsedTime;
-    
+
     easing.damp(pointerSmooth.current, 'x', pointer.x, 0.35, delta);
     easing.damp(pointerSmooth.current, 'y', pointer.y, 0.35, delta);
 
-    const tgtAmp = hovered ? 0.28 : 0.2; 
+    const tgtAmp = hovered ? 0.28 : 0.2;
     const tgtSpd = hovered ? 1.1 : 0.8;
-    
+
     easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
     easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
 
@@ -282,14 +282,14 @@ const LiquidBlob = () => {
     drop2Ref.current.x = 3.6 * Math.cos(t * 0.5);
     drop2Ref.current.z = 3.6 * Math.sin(t * 0.5);
     drop2Ref.current.y = -1.5 + Math.cos(t * 0.8) * 0.3;
-    
+
     // Top droplet slowly moves up and down
     drop3Ref.current.x = -1.8 + Math.sin(t * 0.8) * 0.2;
     drop3Ref.current.y = 3.3 + Math.cos(t * 1.2) * 0.15;
 
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
-    
+
     const pos = mesh.current.geometry.attributes.position.array;
     const norms = mesh.current.geometry.userData.normals;
     const lengths = mesh.current.geometry.userData.lengths;
@@ -301,9 +301,9 @@ const LiquidBlob = () => {
     const ts3 = t * speed * 1.1;
     const ts4 = t * speed * 0.6;
     const ts5 = t * speed * 0.9;
-    
+
     // Scale pointer coordinate space to match blob interaction radius
-    const pX = pointerSmooth.current.x * 3.5; 
+    const pX = pointerSmooth.current.x * 3.5;
     const pY = pointerSmooth.current.y * 3.5;
 
     // Droplet positions in local mesh space (scaled by 1.35)
@@ -315,7 +315,7 @@ const LiquidBlob = () => {
     const d2x = drop2Ref.current.x / localScale;
     const d2y = drop2Ref.current.y / localScale;
     const d2z = drop2Ref.current.z / localScale;
-    
+
     const d3x = drop3Ref.current.x / localScale;
     const d3y = drop3Ref.current.y / localScale;
     const d3z = drop3Ref.current.z / localScale;
@@ -332,14 +332,14 @@ const LiquidBlob = () => {
         Math.sin(nz * 2.0 + ts3) * 0.2 +
         Math.sin((nx + ny) * 4.0 + ts4) * 0.15 +
         Math.cos((ny + nz) * 2.5 - ts5) * 0.1;
-        
+
       // Continuously react to the pointer position globally
       const dx = nx - pX;
       const dy = ny - pY;
       const distToPointer = Math.sqrt(dx * dx + dy * dy);
-      
+
       const cursorInfluence = Math.max(0, 1.0 - distToPointer * 0.5);
-      d += cursorInfluence * 1.1; 
+      d += cursorInfluence * 1.1;
 
       // Metaball effect: pull vertices towards droplets
       // OPTIMIZATION: Math.sqrt() removed to save CPU. We use squared distances directly.
@@ -347,15 +347,15 @@ const LiquidBlob = () => {
       const by = ny * len;
       const bz = nz * len;
 
-      const distSq1 = (bx - d1x)*(bx - d1x) + (by - d1y)*(by - d1y) + (bz - d1z)*(bz - d1z);
+      const distSq1 = (bx - d1x) * (bx - d1x) + (by - d1y) * (by - d1y) + (bz - d1z) * (bz - d1z);
       const pull1 = Math.exp(-distSq1 * 2.0) * 1.8;
       d += pull1;
 
-      const distSq2 = (bx - d2x)*(bx - d2x) + (by - d2y)*(by - d2y) + (bz - d2z)*(bz - d2z);
+      const distSq2 = (bx - d2x) * (bx - d2x) + (by - d2y) * (by - d2y) + (bz - d2z) * (bz - d2z);
       const pull2 = Math.exp(-distSq2 * 2.5) * 1.5;
       d += pull2;
-      
-      const distSq3 = (bx - d3x)*(bx - d3x) + (by - d3y)*(by - d3y) + (bz - d3z)*(bz - d3z);
+
+      const distSq3 = (bx - d3x) * (bx - d3x) + (by - d3y) * (by - d3y) + (bz - d3z) * (bz - d3z);
       const pull3 = Math.exp(-distSq3 * 2.5) * 1.6;
       d += pull3;
 
@@ -363,7 +363,7 @@ const LiquidBlob = () => {
       pos[ix] = nx * r;
       pos[iy] = ny * r;
       pos[iz] = nz * r;
-      
+
       ix += 3;
     }
 
@@ -386,31 +386,31 @@ const LiquidBlob = () => {
             onPointerOver={() => setHovered(true)}
             onPointerOut={() => setHovered(false)}
           >
-          <MeshTransmissionMaterial
-            transmission={1.0}
-            thickness={1.5}
-            roughness={0.06}
-            ior={1.2}
-            chromaticAberration={0.05}
-            anisotropy={0.1}
-            color="#ffffff"
-            attenuationColor="#a6dfff"
-            attenuationDistance={3.0}
-            distortion={0.2}
-            distortionScale={0.3}
-            temporalDistortion={0.1}
-            clearcoat={0.4}
-            clearcoatRoughness={0.2}
-            backside={true}
-            samples={8}
-            resolution={512}
-            toneMapped={true}
-          />
+            <MeshTransmissionMaterial
+              transmission={1.0}
+              thickness={1.5}
+              roughness={0.06}
+              ior={1.2}
+              chromaticAberration={0.05}
+              anisotropy={0.1}
+              color="#ffffff"
+              attenuationColor="#a6dfff"
+              attenuationDistance={3.0}
+              distortion={0.2}
+              distortionScale={0.3}
+              temporalDistortion={0.1}
+              clearcoat={0.4}
+              clearcoatRoughness={0.2}
+              backside={true}
+              samples={8}
+              resolution={512}
+              toneMapped={true}
+            />
           </mesh>
           <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} />
         </group>
       </Float>
-      
+
       <Droplets active={hovered} blobPosition={blobPosition} count={15} />
     </>
   );
@@ -449,25 +449,25 @@ export default function WaterHeroComponent() {
 
         <Suspense fallback={null}>
           <Environment resolution={512}>
-            <color attach="background" args={['#050812']} />
-            
+            <color attach="background" args={['#0a1930']} />
+
             {/* Top wide light for soft upper reflection */}
-            <Lightformer 
-              form="rect" 
-              intensity={3} 
-              position={[0, 5, 0]} 
-              scale={[10, 10, 1]} 
-              target={[0, 0, 0]} 
+            <Lightformer
+              form="rect"
+              intensity={3}
+              position={[0, 5, 0]}
+              scale={[10, 10, 1]}
+              target={[0, 0, 0]}
               color="#ffffff"
             />
-            
+
             {/* Soft side reflection (window-like) */}
-            <Lightformer 
-              form="rect" 
-              intensity={4} 
-              position={[-5, 0, 2]} 
-              scale={[4, 10, 1]} 
-              target={[0, 0, 0]} 
+            <Lightformer
+              form="rect"
+              intensity={4}
+              position={[-5, 0, 2]}
+              scale={[4, 10, 1]}
+              target={[0, 0, 0]}
               color="#e6f7ff"
             />
           </Environment>
