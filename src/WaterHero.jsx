@@ -159,10 +159,11 @@ const LENS_FRAG = `
 // Each frame the scene is rendered into an FBO (without the droplets themselves),
 // then the droplets draw using that texture + a Snell's-law lens shader.
 // Result: dark over dark background, magnified blob colours when hovering the blob.
-const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
+const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref, drop4Ref }) => {
   const mesh1 = useRef();
   const mesh2 = useRef();
   const mesh3 = useRef();
+  const mesh4 = useRef(); // surface-tension droplet
   const { size } = useThree();
 
   // Render target that captures the scene without the mini droplets
@@ -203,10 +204,17 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       mesh3.current.scale.setScalar(1 + Math.sin(t * 2.0) * 0.05);
     }
 
+    // Surface-tension droplet: gentle pulse (mimics the membrane vibration)
+    if (mesh4.current && drop4Ref.current) {
+      mesh4.current.position.copy(drop4Ref.current);
+      mesh4.current.scale.setScalar(1 + Math.sin(t * 3.0) * 0.025);
+    }
+
     // ── FBO capture: hide droplets → render scene → restore ──
     if (mesh1.current) mesh1.current.visible = false;
     if (mesh2.current) mesh2.current.visible = false;
     if (mesh3.current) mesh3.current.visible = false;
+    if (mesh4.current) mesh4.current.visible = false;
 
     gl.setRenderTarget(fbo);
     gl.render(scene, camera);
@@ -215,6 +223,7 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
     if (mesh1.current) mesh1.current.visible = true;
     if (mesh2.current) mesh2.current.visible = true;
     if (mesh3.current) mesh3.current.visible = true;
+    if (mesh4.current) mesh4.current.visible = true;
 
     // Push FBO texture and current resolution to shader
     lensUniforms.uBackground.value = fbo.texture;
@@ -236,6 +245,11 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref }) => {
       {/* Top emerging droplet */}
       <mesh ref={mesh3} material={lensMaterial}>
         <sphereGeometry args={[0.4, 32, 32]} />
+      </mesh>
+
+      {/* Surface-tension droplet — rests on the blob surface */}
+      <mesh ref={mesh4} material={lensMaterial}>
+        <sphereGeometry args={[0.42, 32, 32]} />
       </mesh>
     </>
   );
@@ -319,6 +333,8 @@ const LiquidBlob = () => {
   const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
   const drop2Ref = useRef(new THREE.Vector3(3.6, -1.5, 0));
   const drop3Ref = useRef(new THREE.Vector3(-1.8, 3.4, 0)); // Top droplet
+  // Surface-tension droplet: sits on the blob surface (front-lower-right)
+  const drop4Ref = useRef(new THREE.Vector3(1.8, -0.9, 2.6));
 
   const { viewport, pointer } = useThree();
 
@@ -374,6 +390,11 @@ const LiquidBlob = () => {
     drop3Ref.current.x = -1.8 + Math.sin(t * 0.8) * 0.2;
     drop3Ref.current.y = 3.3 + Math.cos(t * 1.2) * 0.15;
 
+    // Surface-tension droplet: barely moves — just breathes gently
+    drop4Ref.current.x = 1.8  + Math.sin(t * 0.55) * 0.06;
+    drop4Ref.current.y = -0.9 + Math.sin(t * 0.80) * 0.06;
+    drop4Ref.current.z = 2.6  + Math.cos(t * 0.65) * 0.06;
+
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
 
@@ -407,6 +428,10 @@ const LiquidBlob = () => {
     const d3y = drop3Ref.current.y / localScale;
     const d3z = drop3Ref.current.z / localScale;
 
+    const d4x = drop4Ref.current.x / localScale;
+    const d4y = drop4Ref.current.y / localScale;
+    const d4z = drop4Ref.current.z / localScale;
+
     let ix = 0;
     for (let i = 0; i < count; i++) {
       const iy = ix + 1, iz = ix + 2;
@@ -438,13 +463,21 @@ const LiquidBlob = () => {
       const pull1 = Math.exp(-distSq1 * 2.0) * 1.8;
       d += pull1;
 
+      // pull2/pull3 intentionally weak — prevents the dark groove artifact
       const distSq2 = (bx - d2x) * (bx - d2x) + (by - d2y) * (by - d2y) + (bz - d2z) * (bz - d2z);
-      const pull2 = Math.exp(-distSq2 * 2.5) * 1.5;
+      const pull2 = Math.exp(-distSq2 * 2.5) * 0.4;
       d += pull2;
 
       const distSq3 = (bx - d3x) * (bx - d3x) + (by - d3y) * (by - d3y) + (bz - d3z) * (bz - d3z);
-      const pull3 = Math.exp(-distSq3 * 2.5) * 1.6;
+      const pull3 = Math.exp(-distSq3 * 2.5) * 0.4;
       d += pull3;
+
+      // Surface-tension droplet: narrow + strong pull creates the neck/lobe,
+      // followed by a very gentle depression ring (the concavity of real surface tension)
+      const distSq4 = (bx - d4x) * (bx - d4x) + (by - d4y) * (by - d4y) + (bz - d4z) * (bz - d4z);
+      const pull4   = Math.exp(-distSq4 * 4.5) * 2.6;  // sharp lobe where droplet rests
+      const neck4   = Math.exp(-distSq4 * 0.9) * -0.07; // subtle depression ring around it
+      d += pull4 + neck4;
 
       const r = len + d * amplitude;
       pos[ix] = nx * r;
@@ -496,7 +529,7 @@ const LiquidBlob = () => {
               toneMapped={true}
             />
           </mesh>
-          <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} />
+          <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} drop4Ref={drop4Ref} />
         </group>
       </Float>
 
