@@ -76,8 +76,8 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
     <instancedMesh ref={meshRef} args={[geometry, null, count]}>
       <MeshTransmissionMaterial
         {...miniDropletMaterialProps}
-        color="#0d2044"
-        attenuationColor="#1a4a8a"
+        color="#ffffff"
+        attenuationColor="#a6dfff"
         thickness={0.5}
       />
     </instancedMesh>
@@ -89,14 +89,14 @@ const Droplets = ({ count = 15, active, blobPosition }) => {
 
 const miniDropletMaterialProps = {
   transmission: 1.0,
-  roughness: 0.04,
-  ior: 1.33,
-  chromaticAberration: 0.03,
-  color: "#0d2044",
-  attenuationColor: "#1a4a8a",
-  attenuationDistance: 1.2,
-  clearcoat: 1.0,
-  clearcoatRoughness: 0.05,
+  roughness: 0.05,
+  ior: 1.2,
+  chromaticAberration: 0.04,
+  color: "#ffffff",
+  attenuationColor: "#a6dfff",
+  attenuationDistance: 1.5,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.2,
   samples: 4,
   resolution: 256
 };
@@ -396,21 +396,20 @@ const LiquidBlob = () => {
           >
             <MeshTransmissionMaterial
               transmission={1.0}
-              thickness={2.2}
-              roughness={0.04}
-              ior={1.33}
-              chromaticAberration={0.04}
-              anisotropy={0.05}
-              // Deep navy base — matches the reference image
-              color="#0b1d3a"
-              attenuationColor="#1a4a7a"
-              attenuationDistance={2.5}
-              distortion={0.15}
-              distortionScale={0.25}
-              temporalDistortion={0.05}
-              // High clearcoat for sharp specular highlights (white reflections)
-              clearcoat={1.0}
-              clearcoatRoughness={0.04}
+              thickness={1.5}
+              roughness={0.06}
+              ior={1.2}
+              chromaticAberration={0.05}
+              anisotropy={0.1}
+              // White base = light passes through freely, blue tint comes from attenuation
+              color="#ffffff"
+              attenuationColor="#a6dfff"
+              attenuationDistance={3.0}
+              distortion={0.2}
+              distortionScale={0.3}
+              temporalDistortion={0.1}
+              clearcoat={0.4}
+              clearcoatRoughness={0.2}
               backside={true}
               samples={8}
               resolution={512}
@@ -450,63 +449,52 @@ export default function WaterHeroComponent() {
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
       >
-        <ambientLight intensity={0.3} color="#c8dff5" />
-        {/* Strong top-right key light → creates the bright white specular highlight */}
-        <directionalLight position={[4, 8, 6]} intensity={2.5} color="#ffffff" />
-        {/* Cool blue fill from below-left → dark shadowed areas like the reference */}
-        <directionalLight position={[-6, -4, 3]} intensity={0.6} color="#1a3a6a" />
-        {/* Rim light from behind → thin bright edge highlight */}
-        <pointLight position={[0, 0, -6]} intensity={1.2} color="#4488cc" />
+        <ambientLight intensity={0.4} color="#e0f0ff" />
+        {/* Main white key light */}
+        <directionalLight position={[5, 10, 8]} intensity={2.0} color="#ffffff" />
+        {/* Soft fill light */}
+        <directionalLight position={[-10, -5, 5]} intensity={1.0} color="#dcedff" />
+        <pointLight position={[0, -5, 5]} intensity={1.0} color="#ffffff" />
 
         <Suspense fallback={null}>
           <Environment resolution={512}>
-            {/* Dark navy environment background */}
-            <color attach="background" args={['#071628']} />
+            {/* Original navy background */}
+            <color attach="background" args={['#093354']} />
 
             {/*
-              Lightformers placed to produce realistic, non-face-shaped reflections.
-              Key principle: use asymmetric, edge-biased rectangles so the
-              specular blobs never align to form two "eyes" and a "mouth".
+              Lightformers: asymmetric positions so highlights never form
+              two "eyes" + a "mouth" pattern. Use wide horizontal bands
+              and offset vertical strips instead of symmetric pairs.
             */}
 
-            {/* Wide horizontal band top-left → main bright reflection stripe */}
+            {/* Wide horizontal top sweep — main bright reflection area */}
             <Lightformer
               form="rect"
-              intensity={5}
-              position={[-3, 4, 2]}
-              rotation={[0.2, 0.3, 0.1]}
-              scale={[12, 3, 1]}
+              intensity={4}
+              position={[-2, 5, 1]}
+              rotation={[0.3, 0.2, 0]}
+              scale={[14, 4, 1]}
               color="#ffffff"
             />
 
-            {/* Small bright accent top-right — offset so it's not symmetric */}
+            {/* Left tall strip — off-center vertical highlight */}
             <Lightformer
               form="rect"
-              intensity={3}
-              position={[4, 3, 1]}
-              rotation={[-0.1, -0.4, 0.2]}
-              scale={[3, 6, 1]}
-              color="#ddeeff"
+              intensity={4}
+              position={[-5, 0, 2]}
+              rotation={[0, 0.3, 0]}
+              scale={[3, 12, 1]}
+              color="#e6f7ff"
             />
 
-            {/* Subtle cool blue fill from bottom — deep blue inner glow */}
+            {/* Bottom cool-blue fill — adds depth to lower shadow area */}
             <Lightformer
               form="rect"
-              intensity={1.5}
-              position={[0, -5, 1]}
-              rotation={[-0.5, 0, 0]}
-              scale={[8, 4, 1]}
-              color="#1a4a8a"
-            />
-
-            {/* Soft right-side rim — silverish/grey highlight along the edge */}
-            <Lightformer
-              form="rect"
-              intensity={2}
-              position={[6, 1, -1]}
-              rotation={[0, -0.8, 0]}
-              scale={[2, 8, 1]}
-              color="#c8d8ef"
+              intensity={1.2}
+              position={[1, -5, 1]}
+              rotation={[-0.4, 0.1, 0]}
+              scale={[8, 3, 1]}
+              color="#2255aa"
             />
           </Environment>
         </Suspense>
