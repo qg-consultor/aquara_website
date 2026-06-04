@@ -227,6 +227,8 @@ const LiquidBlob = () => {
   const amplitudeRef = useRef(0.2); // Increased base amplitude
   const speedRef = useRef(1.0); // Moderate speed
   const pointerSmooth = useRef(new THREE.Vector2(0, 0));
+  // Accumulate base rotation via delta to avoid precision loss / jitter at large t values
+  const rotRef = useRef({ y: 0 });
 
   // Dynamic refs for the mini droplets positions
   const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
@@ -268,8 +270,8 @@ const LiquidBlob = () => {
     if (!mesh.current) return;
     const t = state.clock.elapsedTime;
 
-    easing.damp(pointerSmooth.current, 'x', pointer.x, 0.35, delta);
-    easing.damp(pointerSmooth.current, 'y', pointer.y, 0.35, delta);
+    easing.damp(pointerSmooth.current, 'x', pointer.x, 0.12, delta);
+    easing.damp(pointerSmooth.current, 'y', pointer.y, 0.12, delta);
 
     const tgtAmp = hovered ? 0.28 : 0.2;
     const tgtSpd = hovered ? 1.1 : 0.8;
@@ -370,7 +372,9 @@ const LiquidBlob = () => {
     mesh.current.geometry.attributes.position.needsUpdate = true;
     mesh.current.geometry.computeVertexNormals();
 
-    mesh.current.rotation.y = t * 0.04 + pointerSmooth.current.x * 0.25;
+    // Accumulate base Y rotation per frame — stays in safe numeric range forever
+    rotRef.current.y += delta * 0.04;
+    mesh.current.rotation.y = rotRef.current.y + pointerSmooth.current.x * 0.25;
     mesh.current.rotation.x = pointerSmooth.current.y * -0.25;
     mesh.current.rotation.z = Math.sin(t * 0.03) * 0.03;
   });
