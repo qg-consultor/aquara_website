@@ -247,9 +247,9 @@ const MiniDroplets = ({ drop1Ref, drop2Ref, drop3Ref, drop4Ref }) => {
         <sphereGeometry args={[0.4, 32, 32]} />
       </mesh>
 
-      {/* Surface-tension droplet — rests on the blob surface */}
+      {/* Surface-tension droplet — hangs from the bottom of the blob */}
       <mesh ref={mesh4} material={lensMaterial}>
-        <sphereGeometry args={[0.42, 32, 32]} />
+        <sphereGeometry args={[0.30, 32, 32]} />
       </mesh>
     </>
   );
@@ -333,8 +333,8 @@ const LiquidBlob = () => {
   const drop1Ref = useRef(new THREE.Vector3(0, -3.8, 0));
   const drop2Ref = useRef(new THREE.Vector3(3.6, -1.5, 0));
   const drop3Ref = useRef(new THREE.Vector3(-1.8, 3.4, 0)); // Top droplet
-  // Surface-tension droplet: sits on the blob surface (front-lower-right)
-  const drop4Ref = useRef(new THREE.Vector3(1.8, -0.9, 2.6));
+  // Surface-tension droplet: hangs from the bottom of the blob (slightly forward for camera visibility)
+  const drop4Ref = useRef(new THREE.Vector3(0.3, -3.15, 0.65));
 
   const { viewport, pointer } = useThree();
 
@@ -390,10 +390,10 @@ const LiquidBlob = () => {
     drop3Ref.current.x = -1.8 + Math.sin(t * 0.8) * 0.2;
     drop3Ref.current.y = 3.3 + Math.cos(t * 1.2) * 0.15;
 
-    // Surface-tension droplet: barely moves — just breathes gently
-    drop4Ref.current.x = 1.8  + Math.sin(t * 0.55) * 0.06;
-    drop4Ref.current.y = -0.9 + Math.sin(t * 0.80) * 0.06;
-    drop4Ref.current.z = 2.6  + Math.cos(t * 0.65) * 0.06;
+    // Surface-tension droplet: barely moves — just breathes gently, like a drip about to fall
+    drop4Ref.current.x = 0.3  + Math.sin(t * 0.4) * 0.04;
+    drop4Ref.current.y = -3.15 + Math.sin(t * 0.9) * 0.05;
+    drop4Ref.current.z = 0.65  + Math.cos(t * 0.5) * 0.04;
 
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
@@ -460,7 +460,8 @@ const LiquidBlob = () => {
       const bz = nz * len;
 
       const distSq1 = (bx - d1x) * (bx - d1x) + (by - d1y) * (by - d1y) + (bz - d1z) * (bz - d1z);
-      const pull1 = Math.exp(-distSq1 * 2.0) * 1.8;
+      // pull1 kept weak so it doesn't compete with the surface-tension drop4 effect below
+      const pull1 = Math.exp(-distSq1 * 2.0) * 0.35;
       d += pull1;
 
       // pull2/pull3 intentionally weak — prevents the dark groove artifact
@@ -472,11 +473,11 @@ const LiquidBlob = () => {
       const pull3 = Math.exp(-distSq3 * 2.5) * 0.4;
       d += pull3;
 
-      // Surface-tension droplet: narrow + strong pull creates the neck/lobe,
-      // followed by a very gentle depression ring (the concavity of real surface tension)
+      // Surface-tension droplet: very narrow, very strong pull → cone/point at blob bottom
+      // neck4 negative ring creates the visible waist between blob and droplet (pinch-off moment)
       const distSq4 = (bx - d4x) * (bx - d4x) + (by - d4y) * (by - d4y) + (bz - d4z) * (bz - d4z);
-      const pull4   = Math.exp(-distSq4 * 4.5) * 2.6;  // sharp lobe where droplet rests
-      const neck4   = Math.exp(-distSq4 * 0.9) * -0.07; // subtle depression ring around it
+      const pull4   = Math.exp(-distSq4 * 6.5) * 4.2;   // sharp cone pull
+      const neck4   = Math.exp(-distSq4 * 1.1) * -0.22;  // pronounced waist
       d += pull4 + neck4;
 
       const r = len + d * amplitude;
