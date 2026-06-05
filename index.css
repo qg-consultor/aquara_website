@@ -352,7 +352,7 @@ p {
     font-family: 'Jura', sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
-    color: rgba(0, 242, 254, 0.6);
+    color: #ffffff;
     text-transform: uppercase;
     letter-spacing: 0.35em;
     white-space: nowrap;
@@ -399,10 +399,10 @@ p {
     height: auto;
     width: 120px;
     object-fit: contain;
-    filter: drop-shadow(0px 0px 18px rgba(0, 0, 0, 0.35));
+    filter: drop-shadow(0px 0px 18px rgba(0, 0, 0, 0.45));
 }
 
-.marquee-item img[alt*="Kurita Certified"] {
+.marquee-item img[alt*="Premium Partner"] {
     width: 100px;
 }
 
