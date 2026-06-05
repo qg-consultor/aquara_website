@@ -496,6 +496,7 @@ const LiquidBlob = () => {
               resolution={512}
               toneMapped={true}
             />
+          </mesh>
           <MiniDroplets drop1Ref={drop1Ref} drop2Ref={drop2Ref} drop3Ref={drop3Ref} />
         </group>
       </Float>
