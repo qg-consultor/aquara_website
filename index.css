@@ -317,13 +317,15 @@ p {
 /* --- TRUST BAR — Full-width authority strip --- */
 .trust-bar {
     position: absolute;
-    bottom: 6rem;
+    bottom: 5rem;
     left: 0;
     width: 100%;
     z-index: 5;
-    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.8) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0.25) 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     padding: 1.4rem 0 1.2rem;
     pointer-events: auto;
     mask-image: linear-gradient(180deg, transparent 0%, black 15%, black 85%, transparent 100%);
@@ -343,14 +345,14 @@ p {
     display: block;
     width: 60px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(10, 25, 48, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.4), transparent);
 }
 
 .trust-bar-text {
     font-family: 'Jura', sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
-    color: rgba(10, 25, 48, 0.8);
+    color: rgba(0, 242, 254, 0.6);
     text-transform: uppercase;
     letter-spacing: 0.35em;
     white-space: nowrap;
@@ -400,7 +402,7 @@ p {
 }
 
 .marquee-sep {
-    color: rgba(10, 25, 48, 0.3);
+    color: rgba(0, 242, 254, 0.25);
     font-size: 0.6rem;
     flex-shrink: 0;
     user-select: none;
