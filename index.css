@@ -318,9 +318,9 @@ p {
 .trust-bar {
     position: absolute;
     bottom: 0;
-    right: 0;
-    width: 55%;
-    z-index: 20;
+    left: 0;
+    width: 100%;
+    z-index: 5;
     background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.5) 40%, rgba(3, 7, 18, 0.75) 100%);
     padding: 1.4rem 0 1.2rem;
     pointer-events: auto;
