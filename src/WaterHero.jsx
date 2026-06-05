@@ -364,15 +364,20 @@ const LiquidBlob = () => {
     easing.damp(amplitudeRef, 'current', tgtAmp, 0.6, delta);
     easing.damp(speedRef, 'current', tgtSpd, 0.8, delta);
 
+    // Wrap t to avoid floating-point precision loss in sin/cos at large values.
+    // sin/cos are periodic with period 2π, so this is mathematically transparent
+    // and prevents the erratic jitter that builds up after extended navigation.
+    const tMod = t % (Math.PI * 200); // seamlessly resets every ~628 s
+
     // Update droplet positions globally
-    drop1Ref.current.y = -3.8 + Math.sin(t * 1.5) * 0.2;
-    drop2Ref.current.x = 3.6 * Math.cos(t * 0.5);
-    drop2Ref.current.z = 3.6 * Math.sin(t * 0.5);
-    drop2Ref.current.y = -1.5 + Math.cos(t * 0.8) * 0.3;
+    drop1Ref.current.y = -3.8 + Math.sin(tMod * 1.5) * 0.2;
+    drop2Ref.current.x = 3.6 * Math.cos(tMod * 0.5);
+    drop2Ref.current.z = 3.6 * Math.sin(tMod * 0.5);
+    drop2Ref.current.y = -1.5 + Math.cos(tMod * 0.8) * 0.3;
 
     // Top droplet slowly moves up and down
-    drop3Ref.current.x = -1.8 + Math.sin(t * 0.8) * 0.2;
-    drop3Ref.current.y = 3.3 + Math.cos(t * 1.2) * 0.15;
+    drop3Ref.current.x = -1.8 + Math.sin(tMod * 0.8) * 0.2;
+    drop3Ref.current.y = 3.3 + Math.cos(tMod * 1.2) * 0.15;
 
     const amplitude = amplitudeRef.current;
     const speed = speedRef.current;
@@ -382,12 +387,12 @@ const LiquidBlob = () => {
     const lengths = mesh.current.geometry.userData.lengths;
     const count = pos.length / 3;
 
-    // Precalculate time factors
-    const ts1 = t * speed;
-    const ts2 = t * speed * 0.8;
-    const ts3 = t * speed * 1.1;
-    const ts4 = t * speed * 0.6;
-    const ts5 = t * speed * 0.9;
+    // Precalculate time factors — all based on tMod, never on raw t
+    const ts1 = tMod * speed;
+    const ts2 = tMod * speed * 0.8;
+    const ts3 = tMod * speed * 1.1;
+    const ts4 = tMod * speed * 0.6;
+    const ts5 = tMod * speed * 0.9;
 
     // Scale pointer coordinate space to match blob interaction radius
     const pX = pointerSmooth.current.x * 3.5;
@@ -458,11 +463,11 @@ const LiquidBlob = () => {
     mesh.current.geometry.attributes.position.needsUpdate = true;
     mesh.current.geometry.computeVertexNormals();
 
-    // Accumulate base Y rotation per frame — stays in safe numeric range forever
-    rotRef.current.y += delta * 0.04;
+    // Wrap rotRef.current.y to [0, 2π] — prevents unbounded float growth
+    rotRef.current.y = (rotRef.current.y + delta * 0.04) % (Math.PI * 2);
     mesh.current.rotation.y = rotRef.current.y + pointerSmooth.current.x * 0.25;
     mesh.current.rotation.x = pointerSmooth.current.y * -0.25;
-    mesh.current.rotation.z = Math.sin(t * 0.03) * 0.03;
+    mesh.current.rotation.z = Math.sin(tMod * 0.03) * 0.03;
   });
 
   return (
