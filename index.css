@@ -395,17 +395,8 @@ p {
 
 .marquee-item img {
     height: auto;
-    width: auto;
-    max-width: 160px;
-    max-height: 50px;
+    width: 100px;
     object-fit: contain;
-}
-
-/* Bigger sizing for specific partner logos to match CA logo width */
-.marquee-item img[alt*="FMEAE"],
-.marquee-item img[alt*="Kurita Water"] {
-    width: 160px;
-    max-height: none;
 }
 
 .marquee-sep {
