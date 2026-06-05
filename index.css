@@ -317,11 +317,13 @@ p {
 /* --- TRUST BAR — Full-width authority strip --- */
 .trust-bar {
     position: absolute;
-    bottom: 7rem;
+    bottom: 6rem;
     left: 0;
     width: 100%;
     z-index: 5;
-    background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.5) 40%, rgba(3, 7, 18, 0.75) 100%);
+    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.15) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 1.4rem 0 1.2rem;
     pointer-events: auto;
     mask-image: linear-gradient(180deg, transparent 0%, black 15%, black 85%, transparent 100%);
@@ -378,7 +380,8 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 38px;
+    height: auto;
+    min-height: 50px;
     flex-shrink: 0;
     opacity: 0.85;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -391,17 +394,18 @@ p {
 }
 
 .marquee-item img {
-    height: 100%;
+    height: auto;
     width: auto;
     max-width: 160px;
+    max-height: 50px;
     object-fit: contain;
 }
 
-/* Bigger sizing for specific partner logos */
+/* Bigger sizing for specific partner logos to match CA logo width */
 .marquee-item img[alt*="FMEAE"],
 .marquee-item img[alt*="Kurita Water"] {
-    height: 130%;
-    max-width: 200px;
+    width: 160px;
+    max-height: none;
 }
 
 .marquee-sep {
