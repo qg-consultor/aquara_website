@@ -318,11 +318,11 @@ p {
 .trust-bar {
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 55%;
     z-index: 20;
-    background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.6) 30%, rgba(3, 7, 18, 0.85) 100%);
-    padding: 1.8rem 0 1.5rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.5) 40%, rgba(3, 7, 18, 0.75) 100%);
+    padding: 1.4rem 0 1.2rem;
     pointer-events: auto;
 }
 
@@ -331,7 +331,7 @@ p {
     align-items: center;
     justify-content: center;
     gap: 1.5rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
 }
 
 .trust-bar-line {
@@ -355,8 +355,8 @@ p {
 .marquee-wrapper {
     overflow: hidden;
     width: 100%;
-    mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, black 25%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 25%, black 85%, transparent 100%);
 }
 
 .marquee-track {
@@ -375,16 +375,16 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 42px;
+    height: 38px;
     flex-shrink: 0;
-    filter: brightness(0) invert(1) opacity(0.4);
+    opacity: 0.85;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
 }
 
 .marquee-item:hover {
-    filter: brightness(0) invert(1) opacity(1);
-    transform: scale(1.12);
+    opacity: 1;
+    transform: scale(1.1);
 }
 
 .marquee-item img {
