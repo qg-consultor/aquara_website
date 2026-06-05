@@ -314,35 +314,82 @@ p {
     box-shadow: 0 18px 35px -5px var(--primary-glow);
 }
 
-/* Interaction feedback zone */
+/* --- TRUST BADGES & ALIANZAS --- */
 .hero-interactive-zone {
     height: 100%;
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
-    padding-bottom: 5rem;
+    padding-bottom: 3.5rem;
+    padding-right: 2rem;
+    z-index: 10;
 }
 
-.interaction-hint {
-    background: rgba(255, 255, 255, 0.02);
+.trust-badges-container {
+    background: rgba(13, 20, 35, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 0.75rem 1.5rem;
-    border-radius: 100px;
-    font-size: 0.8rem;
+    border-radius: 16px;
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 242, 254, 0.05);
+    transition: var(--transition-smooth);
+}
+
+.trust-badges-container:hover {
+    border-color: rgba(0, 242, 254, 0.3);
+    background: rgba(13, 20, 35, 0.6);
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 242, 254, 0.08);
+}
+
+.trust-title {
+    font-family: 'Jura', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin: 0;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.trust-badges-container:hover .trust-title {
+    color: var(--primary);
+}
+
+.trust-badges {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    backdrop-filter: blur(10px);
-    animation: pulseHint 3s infinite ease-in-out;
+    justify-content: center;
+    gap: 2.5rem;
 }
 
-.hint-dot {
-    width: 6px;
-    height: 6px;
-    background-color: var(--primary);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--primary);
+.badge-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    width: auto;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: grayscale(100%) opacity(0.5) brightness(1.5);
+    cursor: pointer;
+}
+
+.badge-item:hover {
+    filter: grayscale(0%) opacity(1) brightness(1);
+    transform: scale(1.1);
+}
+
+.badge-item img {
+    height: 100%;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
 }
 
 /* --- ANIMATIONS --- */
@@ -357,16 +404,7 @@ p {
     }
 }
 
-@keyframes pulseHint {
-    0%, 100% {
-        opacity: 0.6;
-        transform: translateY(0);
-    }
-    50% {
-        opacity: 1;
-        transform: translateY(-5px);
-    }
-}
+
 
 /* --- RESPONSIVE STYLES --- */
 @media (max-width: 1024px) {
