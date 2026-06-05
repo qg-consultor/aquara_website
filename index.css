@@ -314,82 +314,96 @@ p {
     box-shadow: 0 18px 35px -5px var(--primary-glow);
 }
 
-/* --- TRUST BADGES & ALIANZAS --- */
-.hero-interactive-zone {
-    height: 100%;
+/* --- TRUST BAR — Full-width authority strip --- */
+.trust-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.6) 30%, rgba(3, 7, 18, 0.85) 100%);
+    padding: 1.8rem 0 1.5rem;
+    pointer-events: auto;
+}
+
+.trust-bar-label {
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    padding-bottom: 3.5rem;
-    padding-right: 2rem;
-    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.2rem;
 }
 
-.trust-badges-container {
-    background: rgba(13, 20, 35, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 1.5rem 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 242, 254, 0.05);
-    transition: var(--transition-smooth);
+.trust-bar-line {
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.4), transparent);
 }
 
-.trust-badges-container:hover {
-    border-color: rgba(0, 242, 254, 0.3);
-    background: rgba(13, 20, 35, 0.6);
-    transform: translateY(-5px);
-    box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 242, 254, 0.08);
-}
-
-.trust-title {
+.trust-bar-text {
     font-family: 'Jura', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    color: var(--text-secondary);
+    color: rgba(0, 242, 254, 0.6);
     text-transform: uppercase;
-    letter-spacing: 0.25em;
-    margin: 0;
-    text-align: center;
-    transition: var(--transition-smooth);
+    letter-spacing: 0.35em;
+    white-space: nowrap;
 }
 
-.trust-badges-container:hover .trust-title {
-    color: var(--primary);
+/* Marquee infinite scroll */
+.marquee-wrapper {
+    overflow: hidden;
+    width: 100%;
+    mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
-.trust-badges {
+.marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    width: max-content;
+    animation: marqueeScroll 25s linear infinite;
+}
+
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+.marquee-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2.5rem;
-}
-
-.badge-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 45px;
-    width: auto;
+    height: 42px;
+    flex-shrink: 0;
+    filter: brightness(0) invert(1) opacity(0.4);
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    filter: grayscale(100%) opacity(0.5) brightness(1.5);
     cursor: pointer;
 }
 
-.badge-item:hover {
-    filter: grayscale(0%) opacity(1) brightness(1);
-    transform: scale(1.1);
+.marquee-item:hover {
+    filter: brightness(0) invert(1) opacity(1);
+    transform: scale(1.12);
 }
 
-.badge-item img {
+.marquee-item img {
     height: 100%;
     width: auto;
-    max-width: 140px;
+    max-width: 160px;
     object-fit: contain;
+}
+
+.marquee-sep {
+    color: rgba(0, 242, 254, 0.25);
+    font-size: 0.6rem;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+@keyframes marqueeScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
 /* --- ANIMATIONS --- */
