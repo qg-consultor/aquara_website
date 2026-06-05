@@ -399,7 +399,7 @@ p {
     height: auto;
     width: 100px;
     object-fit: contain;
-    filter: drop-shadow(1.5px 1.5px 0px rgba(0, 0, 0, 0.85));
+    filter: drop-shadow(3px 3px 4px rgba(0, 0, 0, 0.6));
 }
 
 .marquee-sep {
