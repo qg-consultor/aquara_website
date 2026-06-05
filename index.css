@@ -399,7 +399,7 @@ p {
     height: auto;
     width: 120px;
     object-fit: contain;
-    filter: drop-shadow(0px 0px 8px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0px 0px 18px rgba(0, 0, 0, 0.35));
 }
 
 .marquee-item img[alt*="Kurita Certified"] {
