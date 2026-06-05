@@ -317,16 +317,21 @@ p {
 /* --- TRUST BAR — Full-width authority strip --- */
 .trust-bar {
     position: absolute;
-    bottom: 5rem;
+    bottom: 8rem;
     left: 0;
     width: 100%;
     z-index: 5;
-    padding: 0.8rem 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(3, 7, 18, 0.5) 40%, rgba(3, 7, 18, 0.75) 100%);
+    padding: 1.4rem 0 1.2rem;
     pointer-events: auto;
 }
 
 .trust-bar-label {
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .trust-bar-line {
