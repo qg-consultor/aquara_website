@@ -263,6 +263,71 @@ function init() {
             counterObserver.observe(counter);
         });
     }
+
+    // --- INNOVATION SECTION: SIDEBAR NAV + AUTO-ROTATE ---
+    const innoNavItems = document.querySelectorAll('.inno-nav__item');
+    const innoPanels = document.querySelectorAll('.inno-panel__content');
+    const INNO_DURATION = 5000; // ms per slide
+
+    if (innoNavItems.length && innoPanels.length) {
+        let currentIndex = 0;
+        let autoTimer = null;
+        let isPaused = false;
+
+        // Set CSS variable for progress bar duration
+        document.querySelectorAll('.inno-nav__item').forEach(btn => {
+            btn.style.setProperty('--inno-duration', INNO_DURATION + 'ms');
+        });
+
+        function activateTech(index) {
+            const items = [...innoNavItems];
+            const panels = [...innoPanels];
+
+            // Deactivate all
+            items.forEach(b => b.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+
+            // Activate target
+            items[index].classList.add('active');
+            panels[index].classList.add('active');
+            currentIndex = index;
+
+            // Restart progress bar animation by forcing reflow
+            const activeItem = items[index];
+            activeItem.style.animation = 'none';
+            activeItem.offsetHeight; // trigger reflow
+            activeItem.style.animation = '';
+        }
+
+        function startAutoRotate() {
+            clearInterval(autoTimer);
+            autoTimer = setInterval(() => {
+                if (!isPaused) {
+                    const next = (currentIndex + 1) % innoNavItems.length;
+                    activateTech(next);
+                }
+            }, INNO_DURATION);
+        }
+
+        // Click handler
+        innoNavItems.forEach((btn, index) => {
+            btn.addEventListener('click', () => {
+                activateTech(index);
+                // Restart timer so it doesn't immediately advance
+                startAutoRotate();
+            });
+        });
+
+        // Pause on hover over the entire section
+        const innoSection = document.getElementById('innovacion');
+        if (innoSection) {
+            innoSection.addEventListener('mouseenter', () => { isPaused = true; });
+            innoSection.addEventListener('mouseleave', () => { isPaused = false; });
+        }
+
+        // Start
+        startAutoRotate();
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -270,3 +335,102 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
+/* =======================================================
+   KURITA AMERICA - VIDEO MODAL, FILTERS & CAROUSEL
+   ======================================================= */
+(function initKurita() {
+    // -- Modal logic
+    const modal    = document.getElementById('video-modal');
+    const iframe   = document.getElementById('vmodal-iframe');
+    const closeBtn = document.getElementById('vmodal-close');
+
+    function openModal(videoId) {
+        if (!modal || !iframe) return;
+        iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        if (!modal || !iframe) return;
+        modal.classList.remove('open');
+        iframe.src = '';
+        document.body.style.overflow = '';
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    // -- Featured triggers
+    var featuredTrigger = document.getElementById('featured-video-trigger');
+    if (featuredTrigger) featuredTrigger.addEventListener('click', function() { openModal(featuredTrigger.dataset.videoId); });
+
+    var featuredCta = document.getElementById('featured-play-cta');
+    if (featuredCta) featuredCta.addEventListener('click', function() { openModal(featuredCta.dataset.videoId); });
+
+    // -- Card triggers
+    document.querySelectorAll('.vlog-card').forEach(function(card) {
+        card.addEventListener('click', function() { openModal(card.dataset.videoId); });
+    });
+
+    // -- Filter chips
+    var filterBtns = document.querySelectorAll('.kfilter-btn');
+    var vlogCards  = document.querySelectorAll('.vlog-card');
+
+    filterBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            var filter = btn.dataset.filter;
+            vlogCards.forEach(function(card) {
+                if (filter === 'all' || card.dataset.filter === filter) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            currentIndex = 0;
+            updateCarousel();
+        });
+    });
+
+    // -- Carousel
+    var track   = document.getElementById('kurita-track');
+    var prevBtn = document.getElementById('kurita-prev');
+    var nextBtn = document.getElementById('kurita-next');
+    var CARD_W  = 300;
+    var currentIndex = 0;
+
+    function getVisibleCards() {
+        return track ? Array.from(track.querySelectorAll('.vlog-card:not(.hidden)')) : [];
+    }
+
+    function updateCarousel() {
+        if (!track) return;
+        var wrapWidth = track.parentElement ? track.parentElement.offsetWidth : 0;
+        var visibleCount = Math.floor(wrapWidth / CARD_W) || 1;
+        var cards = getVisibleCards();
+        var maxIndex = Math.max(0, cards.length - visibleCount);
+        currentIndex = Math.min(Math.max(0, currentIndex), maxIndex);
+        track.style.transform = 'translateX(-' + (currentIndex * CARD_W) + 'px)';
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function() { currentIndex = Math.max(0, currentIndex - 1); updateCarousel(); });
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+        var cards = getVisibleCards();
+        var wrapWidth = track && track.parentElement ? track.parentElement.offsetWidth : 0;
+        var visibleCount = Math.floor(wrapWidth / CARD_W) || 1;
+        currentIndex = Math.min(currentIndex + 1, Math.max(0, cards.length - visibleCount));
+        updateCarousel();
+    });
+
+    window.addEventListener('resize', updateCarousel);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateCarousel);
+    } else {
+        updateCarousel();
+    }
+})();
