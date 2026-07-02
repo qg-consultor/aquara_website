@@ -17,6 +17,10 @@
         </div>
     </div>
 
+    <!-- BACKGROUND CANVAS (FIXED) -->
+    <div id="bg-canvas"></div>
+    <div class="hero-overlay"></div>
+
     <!-- FLOATING NAVBAR -->
     <nav class="navbar">
         <a href="#" class="logo" id="nav-logo">
@@ -38,7 +42,6 @@
     <header class="hero" id="inicio">
         <!-- Interactive 3D WebGL Canvas Layer -->
         <div id="hero-canvas" class="hero-canvas-container"></div>
-        <div class="hero-overlay"></div>
         
         <div class="hero-container container">
             <div class="hero-text-side">
@@ -47,7 +50,7 @@
 
                 <p class="hero-description">Soluciones integrales en química, equipos, ingeniería y servicio.</p>
                 <div class="cta-group">
-                    <a href="mailto:info@aquara.com" class="btn-primary" id="hero-primary-btn">Explorar Aquara Home</a>
+                    <a href="#quienes-somos" class="btn-primary" id="hero-primary-btn">CONOCENOS</a>
                 </div>
             </div>
             <div class="hero-interactive-zone"></div>
@@ -104,7 +107,218 @@
         </div>
     </header>
 
+    <!-- ABOUT US SECTION -->
+    <section class="about-section" id="quienes-somos">
+        <div class="about-section__content container">
+            <article class="about-section__text">
+                <p class="about-section__preTitle">Sobre Nosotros</p>
+                <h2 class="about-section__title">¿Quiénes somos?</h2>
+                <p class="about-section__description">
+                    Aquara Water Systems es una empresa mexicana apasionada por el cuidado y administración del agua, al ser un recurso no renovable, trabajamos constantemente con la mejor tecnología y con químicos que aseguren la preservación del medio ambiente a través del uso y reuso del agua.
+                </p>
+                <button class="btn-primary" style="margin-top: 1rem;">Conocer más</button>
+            </article>
+
+            <figure class="about-section__image">
+                <img
+                    src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1534&q=80"
+                    alt="Cuidado y administración del agua"
+                />
+            </figure>
+        </div>
+    </section>
+
+    <!-- SERVICES SECTION (BENTO GRID) -->
+    <section class="services-section container" id="servicios">
+        <div class="services-grid">
+            
+            <!-- Card 1: Pretratamiento -->
+            <article class="service-card fade-up-enter">
+                <div class="service-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L12 10M12 10L15 7M12 10L9 7M4 14C4 18.4183 7.58172 22 12 22C16.4183 22 20 18.4183 20 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 class="service-card__pretitle">EXPLORA</h3>
+                <h2 class="service-card__title">Pretratamiento</h2>
+                <ul class="service-list">
+                    <li>Acondicionamiento</li>
+                    <li>Filtración</li>
+                    <li>Ósmosis Inversa</li>
+                    <li>Desmineralización</li>
+                </ul>
+                <a href="mailto:info@aquara.com" class="btn-primary" style="display: block; text-align: center; margin-top: auto;">CONTACTAR</a>
+            </article>
+
+            <!-- Card 2: Uso del Agua -->
+            <article class="service-card fade-up-enter">
+                <div class="service-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12C7 14.7614 9.23858 17 12 17C14.7614 17 17 14.7614 17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 class="service-card__pretitle">EXPLORA</h3>
+                <h2 class="service-card__title">Uso del Agua</h2>
+                <ul class="service-list">
+                    <li>Enfriamiento</li>
+                    <li>Vapor</li>
+                    <li>Limpieza</li>
+                    <li>Lavado de piezas</li>
+                </ul>
+                <a href="mailto:info@aquara.com" class="btn-primary" style="display: block; text-align: center; margin-top: auto; margin-bottom: 0;">CONTACTAR</a>
+            </article>
+
+            <!-- Card 3: Post Tratamiento -->
+            <article class="service-card fade-up-enter">
+                <div class="service-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6H21M3 12H21M3 18H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 class="service-card__pretitle">EXPLORA</h3>
+                <h2 class="service-card__title">Post Tratamiento</h2>
+                <ul class="service-list">
+                    <li>Efluentes Industriales</li>
+                    <li>Fosfatado</li>
+                    <li>Zincado</li>
+                    <li>Galvanizado</li>
+                    <li>Pintura piezas automotrices</li>
+                    <li>Detactificación de pintura</li>
+                    <li>Diseño de plantas y sistema</li>
+                </ul>
+                <a href="mailto:info@aquara.com" class="btn-primary" style="display: block; text-align: center; margin-top: auto; margin-bottom: 0;">CONTACTAR</a>
+            </article>
+
+            <!-- Card 4: Industrias -->
+            <article class="service-card fade-up-enter">
+                <div class="service-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 22H5C3.89543 22 3 21.1046 3 20V4C3 2.89543 3.89543 2 5 2H19C20.1046 2 21 2.89543 21 4V20C21 21.1046 20.1046 22 19 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6V18M16 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10H21M3 14H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3 class="service-card__pretitle">EXPLORA</h3>
+                <h2 class="service-card__title">Industrias</h2>
+                <ul class="service-list">
+                    <li>Alimenticia</li>
+                    <li>Armadoras</li>
+                    <li>Auto partes</li>
+                    <li>Farmacéutica</li>
+                    <li>Hotelería</li>
+                    <li>Manufacturera</li>
+                    <li>Química</li>
+                    <li>Textil</li>
+                </ul>
+                <a href="mailto:info@aquara.com" class="btn-primary" style="display: block; text-align: center; margin-top: auto; margin-bottom: 0;">CONTACTAR</a>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- SOLUTIONS SECTION (INTERACTIVE MASTER-DETAIL) -->
+    <section class="solutions-section container" id="soluciones">
+        
+        <div class="solutions-header fade-up-enter">
+            <div class="solutions-header__text">
+                <span class="service-card__pretitle" style="color: var(--primary); margin-bottom: 16px; display: block;">NUESTRAS SOLUCIONES</span>
+                <h2 class="section-title" style="text-align: left;">Líderes en Tratamiento y <span class="gradient-text">Gestión de Agua</span></h2>
+                <p>En AQUARA WATER SYSTEMS, no solo proveemos equipos; diseñamos soluciones integrales. Optimizamos el ciclo del agua en tu industria para garantizar el máximo rendimiento, proteger tu infraestructura y asegurar un cumplimiento normativo total.</p>
+            </div>
+            
+            <div class="solutions-stats">
+                <div class="stat-item">
+                    <h3 class="stat-number">+<span class="counter" data-target="15">0</span></h3>
+                    <p class="stat-label">Años de Experiencia</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number">+<span class="counter" data-target="500">0</span></h3>
+                    <p class="stat-label">Proyectos Exitosos</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number"><span class="counter" data-target="99">0</span>%</h3>
+                    <p class="stat-label">Eficiencia Operativa</p>
+                </div>
+                <div class="stat-item">
+                    <h3 class="stat-number">+<span class="counter" data-target="10">0</span>M</h3>
+                    <p class="stat-label">Litros Tratados al Día</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="solutions-container fade-up-enter">
+            <!-- Left Side: Selector List -->
+            <ul class="solutions-list" id="solutionsList">
+                <li class="solution-item active" data-target="sol-ptar">Operación de Plantas (PTAR)</li>
+                <li class="solution-item" data-target="sol-osmosis">Ósmosis Inversa</li>
+                <li class="solution-item" data-target="sol-torres">Torres de Enfriamiento</li>
+                <li class="solution-item" data-target="sol-calderas">Limpieza de Calderas</li>
+                <li class="solution-item" data-target="sol-filtros">Medios Filtrantes</li>
+                <li class="solution-item" data-target="sol-analisis">Análisis Fisicoquímicos</li>
+                <li class="solution-item" data-target="sol-capacitacion">Capacitación</li>
+            </ul>
+
+            <!-- Right Side: Display Glass Panel -->
+            <div class="solutions-display">
+                <!-- Content 1 -->
+                <div class="solution-content active" id="sol-ptar">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" stroke="currentColor" stroke-width="2"/><path d="M12 12L8 8m4 4l4-4m-4 4v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h3>Operación y Mantenimiento de PTAR</h3>
+                    <p>Nuestro servicio representa una valiosa herramienta de administración y control, contribuyendo a liberar recursos de nuestros clientes para asignarlos a su actividad prioritaria, garantizando la correcta operación de las instalaciones a través de un monitoreo experto continuo.</p>
+                </div>
+                
+                <!-- Content 2 -->
+                <div class="solution-content" id="sol-osmosis">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v18m0-18l-4 4m4-4l4 4m-4 10l-4-4m4 4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h3>Operación a Equipos de Ósmosis Inversa</h3>
+                    <p>Garantizamos una operación continua, confiable y con una calidad constante de agua. Una excelente herramienta administrativa que asegura la máxima vida útil de sus membranas y bombas, optimizando la presión y el flujo del permeado.</p>
+                </div>
+
+                <!-- Content 3 -->
+                <div class="solution-content" id="sol-torres">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 21V9a6 6 0 1112 0v12" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <h3>Limpieza y Pasivación de Torres</h3>
+                    <p>Mantenemos las superficies de transferencia de calor limpias y protegidas contra la corrosión biológica y química. Reducimos el tiempo de inactividad, asegurando una rápida y eficiente transición al funcionamiento normal de su sistema de enfriamiento.</p>
+                </div>
+
+                <!-- Content 4 -->
+                <div class="solution-content" id="sol-calderas">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 9V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4m12 12v-7a2 2 0 00-2-2H7a2 2 0 00-2 2v7" stroke="currentColor" stroke-width="2"/><path d="M9 14h6M9 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <h3>Limpieza y Pasivación de Calderas</h3>
+                    <p>Ideal para puestas en marcha de equipos de segunda mano o equipos nuevos. Eliminamos incrustaciones minerales, magnetita y aseguramos una película protectora pasivante que extenderá radicalmente la vida útil térmica del equipo.</p>
+                </div>
+
+                <!-- Content 5 -->
+                <div class="solution-content" id="sol-filtros">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V19l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h3>Cambio de Medios Filtrantes</h3>
+                    <p>Retiro y reemplazo profesional de medios filtrantes (resinas catiónicas, carbón activado, zeolitas) agotados para que sus suavizadores sigan eliminando la dureza del agua, evitando incrustaciones costosas en sus líneas de proceso.</p>
+                </div>
+
+                <!-- Content 6 -->
+                <div class="solution-content" id="sol-analisis">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1m-1.636 6.364l-.707-.707M12 21v-1m-6.364-1.636l.707-.707M3 12h1m1.636-6.364l.707.707" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h3>Análisis Bacteriológicos y Físico-Químicos</h3>
+                    <p>Realizados estrictamente bajo la normativa mexicana (NOM). Contamos con equipo tecnológico de vanguardia y personal altamente capacitado para ofrecer reportes detallados, confiables y con validez oficial para su empresa.</p>
+                </div>
+
+                <!-- Content 7 -->
+                <div class="solution-content" id="sol-capacitacion">
+                    <div class="sol-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14l9-5-9-5-9 5 9 5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <h3>Cursos de Capacitación</h3>
+                    <p>Asesoramos y capacitamos a su personal operativo para que los sistemas de tratamiento sean operados con excelencia, minimizando errores humanos y maximizando la eficiencia energética y la vida útil de su infraestructura hídrica.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
     <script type="module" src="index.js"></script>
     <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
+
+

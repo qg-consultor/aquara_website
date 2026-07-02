@@ -254,15 +254,20 @@ const WaterOverlay = () => {
     texture1: { value: texture },
   }), [texture, size]);
 
+  const materialRef = useRef();
+
   useFrame((state) => {
-    uniforms.time.value = state.clock.elapsedTime * 1.2; // Equivalent to time += 0.02 at 60fps
-    uniforms.resolution.value.set(state.size.width, state.size.height);
+    if (materialRef.current) {
+      materialRef.current.uniforms.time.value = state.clock.elapsedTime * 1.2; // Equivalent to time += 0.02 at 60fps
+      materialRef.current.uniforms.resolution.value.set(state.size.width, state.size.height);
+    }
   });
 
   return (
     <mesh position={[0, 0, -10]} scale={[viewport.width * 1.1, viewport.height * 1.1, 1]} renderOrder={-1}>
       <planeGeometry args={[1, 1, 64, 64]} />
       <shaderMaterial
+        ref={materialRef}
         transparent={false}
         depthWrite={false}
         blending={THREE.NormalBlending}
@@ -305,7 +310,6 @@ const WaterOverlay = () => {
   );
 };
 
-// ── Liquid Blob — vertex distortion via Math.sin/cos, hover-reactive ──
 const LiquidBlob = () => {
   const mesh = useRef();
   const [hovered, setHovered] = useState(false);
@@ -473,7 +477,7 @@ const LiquidBlob = () => {
   return (
     <>
       <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.4}>
-        <group position={blobPosition}>
+        <group position={blobPosition} scale={0.8}>
           <mesh
             ref={mesh}
             geometry={geometry}
@@ -569,8 +573,24 @@ export default function WaterHeroComponent() {
         </Suspense>
 
         <Suspense fallback={null}>
-          <WaterOverlay />
           <LiquidBlob />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
+// ── Separated Background Component ──
+export function WaterBackgroundComponent() {
+  return (
+    <div style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0, zIndex: -2, pointerEvents: 'none', overflow: 'hidden' }}>
+      <Canvas
+        camera={{ position: [0, 0, 8], fov: 42 }}
+        dpr={[1, 1.5]}
+        gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+      >
+        <Suspense fallback={null}>
+          <WaterOverlay />
         </Suspense>
       </Canvas>
     </div>
