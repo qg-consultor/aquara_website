@@ -1546,7 +1546,7 @@ p {
 
 /* -- Header ------------------------------------------- */
 .kurita-header {
-    max-width: 900px;
+    max-width: 100%;
 }
 
 .kurita-header-top {
