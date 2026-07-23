@@ -1476,20 +1476,13 @@ p {
     color: #ffffff;
 }
 
-/* Centrado vertical solo para paneles secundarios */
-.inno-panel-centered .inno-panel__left,
-.inno-panel-centered .inno-panel__right {
-    justify-content: center;
-    height: 100%;
+/* Centrado vertical solo para paneles secundarios — via grid align */
+.inno-panel-centered .inno-panel__body {
+    align-items: center;
 }
 
 .inno-panel-centered .inno-panel__cta {
     margin-top: 0;
-}
-
-/* Quitar flex:1 de la lista para que el centrado vertical funcione */
-.inno-panel-centered .inno-panel__list {
-    flex: none;
 }
 
 /* Benefits list column header */
