@@ -279,32 +279,6 @@ function init() {
             btn.style.setProperty('--inno-duration', INNO_DURATION + 'ms');
         });
 
-        function centerSecondaryList(panel) {
-            if (!panel.classList.contains('inno-panel-centered')) return;
-            const left  = panel.querySelector('.inno-panel__left');
-            const right = panel.querySelector('.inno-panel__right');
-            if (!left || !right) return;
-
-            // Reset inline padding so measurement starts from CSS baseline (36px)
-            right.style.paddingTop    = '';
-            right.style.paddingBottom = '';
-
-            // Double RAF: first frame lets the browser apply display:flex,
-            // second frame measures after layout is fully calculated.
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    const leftH  = left.offsetHeight;
-                    const rightH = right.offsetHeight;
-                    if (leftH > rightH) {
-                        const extra = Math.round((leftH - rightH) / 2);
-                        const base  = 36; // base CSS padding in px
-                        right.style.paddingTop    = (base + extra) + 'px';
-                        right.style.paddingBottom = (base + extra) + 'px';
-                    }
-                });
-            });
-        }
-
         function activateTech(index) {
             const items = [...innoNavItems];
             const panels = [...innoPanels];
@@ -317,9 +291,6 @@ function init() {
             items[index].classList.add('active');
             panels[index].classList.add('active');
             currentIndex = index;
-
-            // Center list in secondary panels
-            centerSecondaryList(panels[index]);
 
             // Restart progress bar animation by forcing reflow
             const activeItem = items[index];

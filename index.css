@@ -1476,13 +1476,11 @@ p {
     color: #ffffff;
 }
 
-/* Centrado vertical solo para paneles secundarios — via grid align */
-.inno-panel-centered .inno-panel__body {
-    align-items: center;
-}
-
-.inno-panel-centered .inno-panel__cta {
-    margin-top: 0;
+/* Centrado vertical solo para paneles secundarios — la columna derecha
+   no se estira (align-self: center) y se centra dentro de la fila del grid
+   cuya altura la define la columna izquierda. */
+.inno-panel-centered .inno-panel__right {
+    align-self: center;
 }
 
 /* Benefits list column header */
