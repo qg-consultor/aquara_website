@@ -285,20 +285,23 @@ function init() {
             const right = panel.querySelector('.inno-panel__right');
             if (!left || !right) return;
 
-            // Reset padding to natural value first
+            // Reset inline padding so measurement starts from CSS baseline (36px)
             right.style.paddingTop    = '';
             right.style.paddingBottom = '';
 
+            // Double RAF: first frame lets the browser apply display:flex,
+            // second frame measures after layout is fully calculated.
             requestAnimationFrame(() => {
-                const leftH  = left.offsetHeight;
-                const rightH = right.offsetHeight;
-                if (leftH > rightH) {
-                    // Distribute the height difference equally as top/bottom padding
-                    const base = 36; // matches CSS padding in px
-                    const extra = Math.round((leftH - rightH) / 2);
-                    right.style.paddingTop    = (base + extra) + 'px';
-                    right.style.paddingBottom = (base + extra) + 'px';
-                }
+                requestAnimationFrame(() => {
+                    const leftH  = left.offsetHeight;
+                    const rightH = right.offsetHeight;
+                    if (leftH > rightH) {
+                        const extra = Math.round((leftH - rightH) / 2);
+                        const base  = 36; // base CSS padding in px
+                        right.style.paddingTop    = (base + extra) + 'px';
+                        right.style.paddingBottom = (base + extra) + 'px';
+                    }
+                });
             });
         }
 
