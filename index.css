@@ -2204,10 +2204,11 @@ p {
 }
 
 .diagram-header p {
-    color: var(--text-secondary);
+    color: #ffffff;
     font-size: 1rem;
-    max-width: 600px;
-    display: none;
+    max-width: 800px;
+    margin: 1rem auto 0 auto;
+    line-height: 1.6;
 }
 
 .diagram-body {
