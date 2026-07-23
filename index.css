@@ -1480,6 +1480,7 @@ p {
 .inno-panel-centered .inno-panel__left,
 .inno-panel-centered .inno-panel__right {
     justify-content: center;
+    height: 100%;
 }
 
 .inno-panel-centered .inno-panel__cta {
