@@ -1476,6 +1476,16 @@ p {
     color: #ffffff;
 }
 
+/* Centrado vertical solo para paneles secundarios */
+.inno-panel-centered .inno-panel__left,
+.inno-panel-centered .inno-panel__right {
+    justify-content: center;
+}
+
+.inno-panel-centered .inno-panel__cta {
+    margin-top: 0;
+}
+
 /* Benefits list column header */
 .inno-panel__list-title {
     font-family: 'Jura', sans-serif;
