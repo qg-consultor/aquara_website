@@ -337,7 +337,7 @@ if (document.readyState === 'loading') {
 }
 
 /* =======================================================
-   KURITA AMERICA - VIDEO MODAL, FILTERS & CAROUSEL
+   KURITA - VIDEO MODAL, FILTERS & CAROUSEL
    ======================================================= */
 (function initKurita() {
     // -- Modal logic
@@ -345,9 +345,13 @@ if (document.readyState === 'loading') {
     const iframe   = document.getElementById('vmodal-iframe');
     const closeBtn = document.getElementById('vmodal-close');
 
-    function openModal(videoId) {
+    function openModal(videoUrl, videoId) {
         if (!modal || !iframe) return;
-        iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+        if (videoUrl) {
+            iframe.src = videoUrl;
+        } else if (videoId) {
+            iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+        }
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
@@ -365,14 +369,14 @@ if (document.readyState === 'loading') {
 
     // -- Featured triggers
     var featuredTrigger = document.getElementById('featured-video-trigger');
-    if (featuredTrigger) featuredTrigger.addEventListener('click', function() { openModal(featuredTrigger.dataset.videoId); });
+    if (featuredTrigger) featuredTrigger.addEventListener('click', function() { openModal(featuredTrigger.dataset.videoUrl, featuredTrigger.dataset.videoId); });
 
     var featuredCta = document.getElementById('featured-play-cta');
-    if (featuredCta) featuredCta.addEventListener('click', function() { openModal(featuredCta.dataset.videoId); });
+    if (featuredCta) featuredCta.addEventListener('click', function() { openModal(featuredCta.dataset.videoUrl, featuredCta.dataset.videoId); });
 
     // -- Card triggers
     document.querySelectorAll('.vlog-card').forEach(function(card) {
-        card.addEventListener('click', function() { openModal(card.dataset.videoId); });
+        card.addEventListener('click', function() { openModal(card.dataset.videoUrl, card.dataset.videoId); });
     });
 
     // -- Filter chips
