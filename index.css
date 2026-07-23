@@ -1476,11 +1476,23 @@ p {
     color: #ffffff;
 }
 
-/* Centrado vertical solo para paneles secundarios — la columna derecha
-   no se estira (align-self: center) y se centra dentro de la fila del grid
-   cuya altura la define la columna izquierda. */
+/* Centrado vertical paneles secundarios: flex row con align-items center
+   garantiza que la columna más corta siempre quede centrada respecto a la más alta */
+.inno-panel-centered .inno-panel__body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.inno-panel-centered .inno-panel__left,
 .inno-panel-centered .inno-panel__right {
-    align-self: center;
+    flex: 1;
+    min-width: 0;
+    width: 50%;
+}
+
+.inno-panel-centered .inno-panel__list {
+    flex: none;
 }
 
 /* Benefits list column header */
