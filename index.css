@@ -1420,6 +1420,7 @@ p {
 .inno-panel__left {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 18px;
     padding: 36px;
     border-right: 1px solid rgba(255,255,255,0.06);
@@ -1428,6 +1429,7 @@ p {
 .inno-panel__right {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 16px;
     padding: 36px;
 }
