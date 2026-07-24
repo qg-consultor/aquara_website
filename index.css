@@ -1476,16 +1476,8 @@ p {
     color: #ffffff;
 }
 
-/* Centrado vertical para paneles secundarios (02 a 05) */
-.inno-panel__content:not(#panel-connect) .inno-panel__body {
-    height: 100%;
-}
-
-.inno-panel__content:not(#panel-connect) .inno-panel__left,
-.inno-panel__content:not(#panel-connect) .inno-panel__right {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+/* Paneles secundarios (02 a 05): Bajar la lista de la derecha para desalinearla del top */
+.inno-panel__content:not(#panel-connect) .inno-panel__left {
     justify-content: center;
 }
 
@@ -1493,10 +1485,9 @@ p {
     margin-top: 0;
 }
 
-.inno-panel__content:not(#panel-connect) .inno-panel__list {
-    flex: initial;
-    margin-top: auto;
-    margin-bottom: auto;
+.inno-panel__content:not(#panel-connect) .inno-panel__right {
+    padding-top: 58px;
+    justify-content: center;
 }
 
 /* Benefits list column header */
