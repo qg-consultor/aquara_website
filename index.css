@@ -1476,32 +1476,23 @@ p {
     color: #ffffff;
 }
 
-/* Centrado vertical para paneles secundarios (02 a 05):
-   Centra la lista de viñetas verticalmente en la columna derecha respecto a la altura de la columna izquierda */
-.inno-panel-centered .inno-panel__body {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    align-items: stretch !important;
+/* Centrado vertical para paneles secundarios (02 a 05) */
+.inno-panel__content:not(#panel-connect) .inno-panel__left {
+    justify-content: center;
 }
 
-.inno-panel-centered .inno-panel__left {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
+.inno-panel__content:not(#panel-connect) .inno-panel__cta {
+    margin-top: 0;
 }
 
-.inno-panel-centered .inno-panel__cta {
-    margin-top: 0 !important;
+.inno-panel__content:not(#panel-connect) .inno-panel__right {
+    justify-content: center;
 }
 
-.inno-panel-centered .inno-panel__right {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-}
-
-.inno-panel-centered .inno-panel__list {
-    flex: initial !important;
+.inno-panel__content:not(#panel-connect) .inno-panel__list {
+    flex: initial;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 /* Benefits list column header */
