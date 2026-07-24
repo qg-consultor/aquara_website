@@ -1486,7 +1486,7 @@ p {
 }
 
 .inno-panel__content:not(#panel-connect) .inno-panel__right {
-    padding-top: 58px;
+    padding-top: 90px !important;
     justify-content: center;
 }
 
