@@ -1479,20 +1479,20 @@ p {
 /* Centrado vertical paneles secundarios: flex row con align-items center
    garantiza que la columna más corta siempre quede centrada respecto a la más alta */
 .inno-panel-centered .inno-panel__body {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
 }
 
 .inno-panel-centered .inno-panel__left,
 .inno-panel-centered .inno-panel__right {
-    flex: 1;
-    min-width: 0;
-    width: 50%;
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: 50% !important;
 }
 
 .inno-panel-centered .inno-panel__list {
-    flex: none;
+    flex: none !important;
 }
 
 /* Benefits list column header */
