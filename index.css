@@ -1477,16 +1477,20 @@ p {
 }
 
 /* Centrado vertical para paneles secundarios (02 a 05) */
-.inno-panel__content:not(#panel-connect) .inno-panel__left {
+.inno-panel__content:not(#panel-connect) .inno-panel__body {
+    height: 100%;
+}
+
+.inno-panel__content:not(#panel-connect) .inno-panel__left,
+.inno-panel__content:not(#panel-connect) .inno-panel__right {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
 }
 
 .inno-panel__content:not(#panel-connect) .inno-panel__cta {
     margin-top: 0;
-}
-
-.inno-panel__content:not(#panel-connect) .inno-panel__right {
-    justify-content: center;
 }
 
 .inno-panel__content:not(#panel-connect) .inno-panel__list {
