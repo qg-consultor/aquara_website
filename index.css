@@ -2669,6 +2669,8 @@ p {
 }
 
 .contact-modal__title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
     font-size: 1.8rem;
     margin-bottom: 0.5rem;
     color: #ffffff;
@@ -2790,10 +2792,10 @@ p {
     margin-top: 0.5rem;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #070b13;
-    font-family: var(--font-heading);
+    font-family: 'Jura', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.08em;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -2833,6 +2835,7 @@ p {
 }
 
 .contact-modal__success h3 {
+    font-family: 'Inter', sans-serif;
     font-size: 1.75rem;
     color: #ffffff;
     margin-bottom: 0.75rem;
