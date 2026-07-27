@@ -328,6 +328,85 @@ function init() {
         // Start
         startAutoRotate();
     }
+
+    // --- CONTACT MODAL INTERACTION ---
+    function initContactModal() {
+        const backdrop = document.getElementById('contact-backdrop');
+        const modal = document.getElementById('contact-modal');
+        const closeBtn = document.getElementById('contact-modal-close');
+        const contactForm = document.getElementById('aquara-contact-form');
+        const formContainer = document.getElementById('contact-form-container');
+        const successContainer = document.getElementById('contact-success-container');
+        const successCloseBtn = document.getElementById('contact-success-close');
+
+        if (!backdrop || !modal) return;
+
+        function openModal(service = 'general') {
+            if (contactForm) contactForm.reset();
+            if (formContainer) formContainer.style.display = 'block';
+            if (successContainer) successContainer.style.display = 'none';
+
+            const serviceSelect = document.getElementById('contact-service');
+            if (serviceSelect && service) {
+                const optionExists = Array.from(serviceSelect.options).some(opt => opt.value === service);
+                if (optionExists) {
+                    serviceSelect.value = service;
+                } else {
+                    serviceSelect.value = 'general';
+                }
+            }
+
+            backdrop.classList.add('active');
+            backdrop.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            backdrop.classList.remove('active');
+            backdrop.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        // Event listener delegation for all CTA triggers
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('[data-open-contact]');
+            if (trigger) {
+                e.preventDefault();
+                const service = trigger.getAttribute('data-service') || 'general';
+                openModal(service);
+            }
+        });
+
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (successCloseBtn) successCloseBtn.addEventListener('click', closeModal);
+
+        backdrop.addEventListener('click', (e) => {
+            if (e.target === backdrop) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && backdrop.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!contactForm.checkValidity()) {
+                    contactForm.reportValidity();
+                    return;
+                }
+
+                if (formContainer && successContainer) {
+                    formContainer.style.display = 'none';
+                    successContainer.style.display = 'block';
+                }
+            });
+        }
+    }
+
+    initContactModal();
 }
 
 if (document.readyState === 'loading') {
