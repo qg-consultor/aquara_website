@@ -2804,6 +2804,7 @@ p {
 }
 
 .contact-submit-btn:hover {
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 12px 30px rgba(0, 242, 254, 0.5);
     filter: brightness(1.1);
