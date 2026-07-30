@@ -1,0 +1,96 @@
+name: Deploy Neubox Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Escribe exactamente: PUBLICAR AQUARAWS.COM'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: neubox-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy production with FTPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    environment:
+      name: production
+      url: https://aquaraws.com
+
+    steps:
+      - name: Validate branch and confirmation
+        env:
+          DEPLOY_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$DEPLOY_CONFIRMATION" = "PUBLICAR AQUARAWS.COM"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build production files
+        run: npm run build
+
+      - name: Validate production build
+        run: |
+          test -f dist/index.html
+          test -f dist/.htaccess
+          test -f dist/send-contact.php
+          test -f dist/robots.txt
+          test -f dist/sitemap.xml
+          test -f dist/assets/solutions/ptar.webp
+          test -f dist/assets/solutions/torres-enfriamiento.webp
+          test -f dist/assets/solutions/calderas.webp
+          test -f dist/assets/solutions/osmosis-inversa.webp
+
+      - name: Install FTPS client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes lftp
+
+      - name: Deploy to Neubox production
+        env:
+          FTP_SERVER: ${{ secrets.NEUBOX_PRODUCTION_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.NEUBOX_PRODUCTION_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.NEUBOX_PRODUCTION_FTP_PASSWORD }}
+        run: |
+          lftp -u "${FTP_USERNAME},${FTP_PASSWORD}" "${FTP_SERVER}" <<'LFTP_COMMANDS'
+          set cmd:fail-exit yes
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set ssl:verify-certificate true
+          set net:max-retries 5
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-multiplier 1
+          set net:reconnect-interval-max 15
+          set net:timeout 30
+          mirror --reverse --delete --continue --verbose \
+            --exclude-glob .well-known/** \
+            --exclude-glob cgi-bin/** \
+            --exclude-glob .user.ini \
+            --exclude-glob php.ini \
+            --exclude-glob .ftpquota \
+            dist/ ./
+          bye
+          LFTP_COMMANDS
