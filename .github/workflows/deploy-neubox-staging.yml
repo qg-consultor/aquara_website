@@ -65,9 +65,12 @@ jobs:
           set ftp:ssl-protect-data true
           set ftp:passive-mode true
           set ssl:verify-certificate true
-          set net:max-retries 2
-          set net:timeout 20
-          mirror --reverse --delete --verbose --parallel=4 \
+          set net:max-retries 5
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-multiplier 1
+          set net:reconnect-interval-max 15
+          set net:timeout 30
+          mirror --reverse --delete --continue --verbose \
             --exclude-glob .well-known/** \
             --exclude-glob cgi-bin/** \
             --exclude-glob .user.ini \
