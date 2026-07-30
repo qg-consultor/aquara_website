@@ -200,6 +200,7 @@ function init() {
     // --- SOLUTIONS INTERACTIVE PANEL ---
     const solutionItems = document.querySelectorAll('.solution-item');
     const solutionContents = document.querySelectorAll('.solution-content');
+    const solutionsDisplay = document.querySelector('.solutions-display');
 
     if (solutionItems.length > 0 && solutionContents.length > 0) {
         solutionItems.forEach(item => {
@@ -218,6 +219,10 @@ function init() {
 
                 // Add active to matching content
                 const targetId = item.getAttribute('data-target');
+                if (solutionsDisplay && targetId) {
+                    solutionsDisplay.setAttribute('data-solution', targetId);
+                }
+
                 const targetContent = document.getElementById(targetId);
                 if (targetContent) {
                     // Force reflow to restart CSS animation (fadeInTab)
@@ -338,11 +343,18 @@ function init() {
         const formContainer = document.getElementById('contact-form-container');
         const successContainer = document.getElementById('contact-success-container');
         const successCloseBtn = document.getElementById('contact-success-close');
+        const formStatus = document.getElementById('contact-form-status');
+        let contactStartedAt = Date.now();
 
         if (!backdrop || !modal) return;
 
         function openModal(service = 'general') {
             if (contactForm) contactForm.reset();
+            contactStartedAt = Date.now();
+            if (formStatus) {
+                formStatus.textContent = '';
+                formStatus.classList.remove('is-error');
+            }
             if (formContainer) formContainer.style.display = 'block';
             if (successContainer) successContainer.style.display = 'none';
 
@@ -391,16 +403,60 @@ function init() {
         });
 
         if (contactForm) {
-            contactForm.addEventListener('submit', (e) => {
+            contactForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (!contactForm.checkValidity()) {
                     contactForm.reportValidity();
                     return;
                 }
 
-                if (formContainer && successContainer) {
-                    formContainer.style.display = 'none';
-                    successContainer.style.display = 'block';
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const submitLabel = submitButton?.querySelector('span');
+                const originalLabel = submitLabel?.textContent || 'ENVIAR MENSAJE';
+
+                if (submitButton) submitButton.disabled = true;
+                if (submitLabel) submitLabel.textContent = 'ENVIANDO...';
+                if (formStatus) {
+                    formStatus.textContent = '';
+                    formStatus.classList.remove('is-error');
+                }
+
+                const formData = new FormData(contactForm);
+                const payload = Object.fromEntries(formData.entries());
+                payload.startedAt = contactStartedAt;
+
+                try {
+                    const response = await fetch('/send-contact.php', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json().catch(() => ({
+                        ok: false,
+                        message: 'No pudimos procesar la respuesta del servidor.'
+                    }));
+
+                    if (!response.ok || !result.ok) {
+                        throw new Error(result.message || 'No pudimos enviar tu mensaje.');
+                    }
+
+                    if (formContainer && successContainer) {
+                        formContainer.style.display = 'none';
+                        successContainer.style.display = 'block';
+                    }
+                } catch (error) {
+                    if (formStatus) {
+                        formStatus.textContent = error.message || 'No pudimos enviar tu mensaje. Escríbenos a hola@aquaraws.com.';
+                        formStatus.classList.add('is-error');
+                    }
+                } finally {
+                    if (submitButton) submitButton.disabled = false;
+                    if (submitLabel) submitLabel.textContent = originalLabel;
                 }
             });
         }
