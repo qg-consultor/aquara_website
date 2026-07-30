@@ -1056,9 +1056,27 @@ p {
     position: relative;
     display: flex;
     align-items: center;
-    background: 
-        linear-gradient(90deg, var(--bg-dark) 0%, rgba(10, 25, 48, 0.85) 40%, rgba(10, 25, 48, 0.3) 100%),
-        url('./WhatsApp Image 2026-06-08 at 15.52.42.jpeg') center/130% no-repeat;
+    background-position: center;
+    background-size: 130%;
+    background-repeat: no-repeat;
+    transition: background-image 0.4s ease-in-out;
+}
+
+.solutions-display[data-solution="sol-ptar"],
+.solutions-display:not([data-solution]) {
+    background-image: linear-gradient(90deg, var(--bg-dark) 0%, rgba(10, 25, 48, 0.85) 40%, rgba(10, 25, 48, 0.3) 100%), url('/assets/solutions/ptar.webp');
+}
+
+.solutions-display[data-solution="sol-torres"] {
+    background-image: linear-gradient(90deg, var(--bg-dark) 0%, rgba(10, 25, 48, 0.85) 40%, rgba(10, 25, 48, 0.3) 100%), url('/assets/solutions/torres-enfriamiento.webp');
+}
+
+.solutions-display[data-solution="sol-calderas"] {
+    background-image: linear-gradient(90deg, var(--bg-dark) 0%, rgba(10, 25, 48, 0.85) 40%, rgba(10, 25, 48, 0.3) 100%), url('/assets/solutions/calderas.webp');
+}
+
+.solutions-display[data-solution="sol-osmosis"] {
+    background-image: linear-gradient(90deg, var(--bg-dark) 0%, rgba(10, 25, 48, 0.85) 40%, rgba(10, 25, 48, 0.3) 100%), url('/assets/solutions/osmosis-inversa.webp');
 }
 
 .solution-content {
@@ -2690,6 +2708,30 @@ p {
     gap: 1.25rem;
 }
 
+.form-honeypot {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.contact-form__status {
+    min-height: 1.25rem;
+    margin: 0;
+    text-align: center;
+    font-size: 0.86rem;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.contact-form__status.is-error {
+    color: #ff9a9a;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2812,6 +2854,13 @@ p {
 
 .contact-submit-btn:active {
     transform: translateY(0);
+}
+
+.contact-submit-btn:disabled {
+    cursor: wait;
+    opacity: 0.65;
+    transform: none;
+    filter: none;
 }
 
 /* Success View */
