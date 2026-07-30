@@ -1,0 +1,77 @@
+name: Deploy Neubox Staging
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: neubox-staging
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy with FTPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build production files
+        run: npm run build
+
+      - name: Validate build
+        run: |
+          test -f dist/index.html
+          test -f dist/.htaccess
+          test -f dist/send-contact.php
+          test -f dist/assets/solutions/ptar.webp
+          test -f dist/assets/solutions/torres-enfriamiento.webp
+          test -f dist/assets/solutions/calderas.webp
+          test -f dist/assets/solutions/osmosis-inversa.webp
+
+      - name: Install FTPS client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes lftp
+
+      - name: Deploy to Neubox staging
+        env:
+          FTP_SERVER: ${{ secrets.NEUBOX_STAGING_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.NEUBOX_STAGING_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.NEUBOX_STAGING_FTP_PASSWORD }}
+        run: |
+          lftp -u "${FTP_USERNAME},${FTP_PASSWORD}" "${FTP_SERVER}" <<'LFTP_COMMANDS'
+          set cmd:fail-exit yes
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ftp:passive-mode true
+          set ssl:verify-certificate true
+          set net:max-retries 2
+          set net:timeout 20
+          mirror --reverse --delete --verbose --parallel=4 \
+            --exclude-glob .well-known/** \
+            --exclude-glob cgi-bin/** \
+            --exclude-glob .user.ini \
+            --exclude-glob php.ini \
+            dist/ ./
+          bye
+          LFTP_COMMANDS
